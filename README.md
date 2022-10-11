@@ -9,5 +9,8 @@ The Graphic contains the work flow that we will follow in the recreating the res
 ### images 
 - Contains refrence material for use in our project 
 
-### test cases  
+### testCases  
 - Contains data for all 11 datasets used as a part of the research paper
+
+### solution
+- Contains code for the solution to this TSP problem
