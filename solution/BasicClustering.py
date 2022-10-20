@@ -139,6 +139,7 @@ def UFL_FCM_VAL(X):
         while seuil < S_max:
             
             # TODO : Apply UFL
+            # UFL will be passed seuil and X and will return c which is the optimal number of clusters for that seuil
             
             # Apply FCM
             U , centers = fcm(X, c)
