@@ -1,12 +1,19 @@
 # Group 13 
 # Andres Graterol
-# TODO: INSERT NAME HERE
+# Christopher Hinkle
 # TODO: INSERT NAME HERE
 # ---------------------------
+# %% 
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 from fcmeans import FCM
+import math
+
+#Equation 2 figure 1
+def S(i,j):
+    return (1 - ((math.dist(i,j) * math.dist(i,j))/2))
+    
 
 # DATA PREPROCESSING
 def preprocess_data_from_file(filepath): 
@@ -51,33 +58,118 @@ def preprocess_data_from_file(filepath):
         X.append(row)
         
     X = np.array(X) 
-    print(X.shape)
-    print(X)
+    #print(X.shape)
+    #print(X)
     plt.scatter(X[:,0], X[:,1])    
     
     return nodes, X
+    
     
 # FUZZY CLUSTERING
 # Create our cluster centers
 def create_cluster_centers(X, num_clusters):
         # Try three just to start 
-        my_model = FCM(n_clusters=num_clusters)
+        my_model = FCM(n_clusters=num_clusters, m=2)
         my_model.fit(X)
+        centers = my_model.centers
+        labels = my_model.predict(X)
+        print()
+
+        # plot result
+        f, axes = plt.subplots(1, 2, figsize=(11,5))
+        axes[0].scatter(X[:,0], X[:,1], alpha=1)
+        axes[1].scatter(X[:,0], X[:,1], c=labels, alpha=1)
+        axes[1].scatter(centers[:,0], centers[:,1], marker="+", s=500, c='black')
+        plt.show()
+        print(labels.shape)
         
-        return my_model.centers
+        return centers
         
+         
+def fcm(X, num_clusters):
+        my_model = FCM(n_clusters=num_clusters, m=2)
+        my_model.fit(X)
+        memDegree = my_model.predict(X)
+        centers = my_model.centers
+        
+        
+
+        return memDegree, centers
+    
+    
+# H(U) Function from figure 2
+def entropy(labels, n):
+    c = len(labels) # number of clusters
+    x = 0
+    i = 1
+    while i < n:
+        j = 1
+        while j < c:
+            # x += u[i][j] * math.log(u[i][j])     TODO IDK what u is in equation 4 figure 2
+            j += 1
+        i += 1
+    return -(1/math.log(c)) * 1/n * x
+    
+    
+# Figure 2 from Paper
+def UFL_FCM_VAL(X):   
+    m_min = 1.1
+    m_max = 3.1
+    m_pas = 0.1
+    pas = 0.01
+    finalNumClusters = 2
+    h_min = 1
+    S_min = 0.1
+    S_max = 0.99
+    n = len(X) # number of cities
+    
+    
+    c = 5 # This is a temp c; c will be created by UFL 
+    
+    
+    m = m_min
+    while m < m_max:
+        seuil = S_min
+        while seuil < S_max:
+            
+            # TODO : Apply UFL
+            
+            # Apply FCM
+            U , centers = fcm(X, c)
+            
+            # Calculate Entropy
+            h = entropy(U, n)
+            
+            if h_min > h:
+                h_min = h
+                finalNumClusters = c
+                finalClusters = centers
+                finalMemDegree = U
+            
+            
+            
+            
+            seuil += pas
+        
+        m += m_pas
+    
+    return finalMemDegree, finalClusters
+    
+    
 # TODO: Implement the objective function from:
 # https://towardsdatascience.com/fuzzy-c-means-clustering-with-python-f4908c714081   
     
 def main():
     # Using the most basic symmetric TSP file: a280.tsp
     # optimal length: 2579
-    tsp_file = '../testCases/a280.tsp' 
+    tsp_file = '../testCases/a280.tsp'
     nodes, X = preprocess_data_from_file(tsp_file)
     
     # TODO: Experiment with different number of clusters
-    num_clusters = 3
+    num_clusters = 5
     centers = create_cluster_centers(X, num_clusters)
-    print(centers)
+    # print(centers)
     
 main()
+
+# %%
