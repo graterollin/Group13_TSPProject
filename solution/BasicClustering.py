@@ -4,6 +4,7 @@
 # TODO: INSERT NAME HERE
 # ---------------------------
 # %% 
+from cProfile import label
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -81,7 +82,10 @@ def create_cluster_centers(X, num_clusters):
         axes[1].scatter(X[:,0], X[:,1], c=labels, alpha=1)
         axes[1].scatter(centers[:,0], centers[:,1], marker="+", s=500, c='black')
         plt.show()
-        print(labels.shape)
+        
+        soft = my_model.soft_predict(X)
+        print(soft.shape)
+        print(soft)
         
         return centers
         
@@ -89,7 +93,7 @@ def create_cluster_centers(X, num_clusters):
 def fcm(X, num_clusters):
         my_model = FCM(n_clusters=num_clusters, m=2)
         my_model.fit(X)
-        memDegree = my_model.predict(X)
+        memDegree = my_model.soft_predict(X)
         centers = my_model.centers
         
         
@@ -98,14 +102,16 @@ def fcm(X, num_clusters):
     
     
 # H(U) Function from figure 2
-def entropy(labels, n):
-    c = len(labels) # number of clusters
+def entropy(U):
+    c = len(U[1]) # number of clusters
+    n = len(U[0]) # number of cities
     x = 0
-    i = 1
+    i = 0
     while i < n:
-        j = 1
+        j = 0
         while j < c:
-            # x += u[i][j] * math.log(u[i][j])     TODO IDK what u is in equation 4 figure 2
+            x += U[i][j] * math.log(U[i][j])
+            
             j += 1
         i += 1
     return -(1/math.log(c)) * 1/n * x
@@ -138,7 +144,7 @@ def UFL_FCM_VAL(X):
             U , centers = fcm(X, c)
             
             # Calculate Entropy
-            h = entropy(U, n)
+            h = entropy(U)
             
             if h_min > h:
                 h_min = h
@@ -167,9 +173,13 @@ def main():
     
     # TODO: Experiment with different number of clusters
     num_clusters = 5
-    centers = create_cluster_centers(X, num_clusters)
+    #centers = create_cluster_centers(X, num_clusters)
     # print(centers)
     
+    y , z = UFL_FCM_VAL(X)
+    
+    print(y)
+    print(z)
 main()
 
 # %%
