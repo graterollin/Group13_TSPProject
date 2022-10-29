@@ -62,33 +62,24 @@ def preprocess_data_from_file(filepath):
     X = np.array(X) 
     #print(X.shape)
     #print(X)
-    plt.scatter(X[:,0], X[:,1])    
-    
+
     return nodes, X
     
-    
-# FUZZY CLUSTERING
-# Create our cluster centers
-def create_cluster_centers(X, num_clusters):
-        # Try three just to start 
-        my_model = FCM(n_clusters=num_clusters, m=2)
-        my_model.fit(X)
-        centers = my_model.centers
-        labels = my_model.predict(X)
-        print()
 
-        # plot result
+# Function for visualizing data 
+def visualize_data(X, labels, centers):
+        # Visualize data without clusters...
+        plt.scatter(X[:,0], X[:,1])    
+        plt.show()
+
+        # ... Now visualize with clusters
         f, axes = plt.subplots(1, 2, figsize=(11,5))
         axes[0].scatter(X[:,0], X[:,1], alpha=1)
         axes[1].scatter(X[:,0], X[:,1], c=labels, alpha=1)
         axes[1].scatter(centers[:,0], centers[:,1], marker="+", s=500, c='black')
         plt.show()
         
-        soft = my_model.soft_predict(X)
-        print(soft.shape)
-        print(soft)
-        
-        return centers
+        return None
         
          
 def fcm(X, num_clusters, m):
@@ -250,9 +241,6 @@ def UFL(X, S_min, m):
 
     return c, C, U
     
-# TODO: Implement the objective function from:
-# https://towardsdatascience.com/fuzzy-c-means-clustering-with-python-f4908c714081   
-    
 def main():
     start = timeit.default_timer()
     # Using the most basic symmetric TSP file: a280.tsp
@@ -260,19 +248,17 @@ def main():
     tsp_file = '../testCases/a280.tsp'
     nodes, X = preprocess_data_from_file(tsp_file)
     
-    # TODO: Experiment with different number of clusters
-    # num_clusters = 5
-    # centers = create_cluster_centers(X, num_clusters)
-    # print(centers)
-    
     y , z = UFL_FCM_VAL(X)
-    # TODO: Graph clusters
-    
+    print("Printing the labels (probability of cluster membership):\n")
     print(y)
+    print("\nPrinting the centers:\n")
     print(z)
+
+    # Visualize the data before & after our algorithms have run
+    #visualize_data(X, y, z) 
+
     stop = timeit.default_timer()
     print('Time: ', stop - start)
 
 main()
-
 # %%
