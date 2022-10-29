@@ -66,19 +66,28 @@ def preprocess_data_from_file(filepath):
     return nodes, X
     
 
-# Function for visualizing data 
-def visualize_data(X, labels, centers):
-        # Visualize data without clusters...
-        plt.scatter(X[:,0], X[:,1])    
-        plt.show()
+# DATA VISUALIZATION 
+def visualize_data(X, num_clusters, m):
+        # Call FCM with the optimal m and number of clusters found by our algorithm 
+        optimal_model = FCM(n_clusters=num_clusters, m=m)
+        optimal_model.fit(X)
+        centers = optimal_model.centers
 
-        # ... Now visualize with clusters
+        # Obtain hard and soft labels for visualization 
+        labels = optimal_model.predict(X)
+        print("Labels:", labels)
+        soft = optimal_model.soft_predict(X)
+
+        alphas = list(map(max,soft[:]))
+        #print(alphas)
+
+        # Visualize data with and without clusters
         f, axes = plt.subplots(1, 2, figsize=(11,5))
         axes[0].scatter(X[:,0], X[:,1], alpha=1)
-        axes[1].scatter(X[:,0], X[:,1], c=labels, alpha=1)
+        axes[1].scatter(X[:,0], X[:,1], c=labels, alpha=alphas)
         axes[1].scatter(centers[:,0], centers[:,1], marker="+", s=500, c='black')
         plt.show()
-        
+
         return None
         
          
@@ -144,11 +153,14 @@ def UFL_FCM_VAL(X):
                 finalNumClusters = c
                 finalClusters = centers
                 finalMemDegree = U
+                finalM = m
 
             S += S_step
         m += m_step
     
-    return finalMemDegree, finalClusters
+    # Output:
+    # Labels, Centers, Fuzzy Degree (M)
+    return finalMemDegree, finalClusters, finalM
 
 '''
 Function e_dist()
@@ -248,14 +260,17 @@ def main():
     tsp_file = '../testCases/a280.tsp'
     nodes, X = preprocess_data_from_file(tsp_file)
     
-    y , z = UFL_FCM_VAL(X)
-    print("Printing the labels (probability of cluster membership):\n")
-    print(y)
-    print("\nPrinting the centers:\n")
-    print(z)
+    y, z, m = UFL_FCM_VAL(X)
+    #print("Printing the labels (probability of cluster membership):\n")
+    #print(y)
+    #print("\nPrinting the centers:\n")
+    #print(z)
+
+    # Number of cluster is the same as the number of centers
+    num_clusters = len(z)
 
     # Visualize the data before & after our algorithms have run
-    #visualize_data(X, y, z) 
+    visualize_data(X, num_clusters, m) 
 
     stop = timeit.default_timer()
     print('Time: ', stop - start)
