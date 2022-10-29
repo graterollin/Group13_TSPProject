@@ -91,8 +91,8 @@ def create_cluster_centers(X, num_clusters):
         return centers
         
          
-def fcm(X, num_clusters):
-        my_model = FCM(n_clusters=num_clusters, m=2)
+def fcm(X, num_clusters, m):
+        my_model = FCM(n_clusters=num_clusters, m=m)
         my_model.fit(X)
         memDegree = my_model.soft_predict(X)
         centers = my_model.centers
@@ -143,7 +143,7 @@ def UFL_FCM_VAL(X):
             c, C, U = UFL(X, S_min, m)
             
             # Apply FCM
-            U , centers = fcm(X, c)
+            U , centers = fcm(X, c, m)
             
             # Calculate Entropy
             h = entropy(U)
