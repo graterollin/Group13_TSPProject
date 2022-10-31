@@ -122,9 +122,11 @@ def UFL_FCM_VAL(X):
     m_step = 0.5
     finalNumClusters = 2
     h_min = 1
-    S_min = 0.09
-    S_max = 0.99
-    S_step = 0.1
+    # S_min = 0.09
+    # S_max = 0.99
+    S_min = 0.79
+    S_max = 0.84
+    S_step = 0.01
     n = len(X) # number of cities
     
     c = 5 # This is a temp c; c will be created by UFL 
@@ -140,12 +142,14 @@ def UFL_FCM_VAL(X):
         while S < S_max:
             # TODO : Apply UFL
             # UFL will be passed S and X and will return c which is the optimal number of clusters for that S
-            c, C, U = UFL(X, S_min, m)
+            c, C, U = UFL(X, S, m)
             
             # Apply FCM
             U , centers = fcm(X, c, m)
             
             # Calculate Entropy
+            # TODO: FIGURE OUT WHY ENTROPY IS LOWEST FOR 2 CLUSTERS INSTEAD OF THE 4 OF CURRENT SETUP
+            # when using full range of S and m
             h = entropy(U)
             
             if h_min > h:
@@ -160,7 +164,11 @@ def UFL_FCM_VAL(X):
     
     # Output:
     # Labels, Centers, Fuzzy Degree (M)
-    return finalMemDegree, finalClusters, finalM
+    print("Final m: ", finalM)
+    print("Final C: ", finalClusters)
+    print("Final c: ", finalNumClusters)
+
+    return finalMemDegree, finalClusters, finalM, finalNumClusters
 
 '''
 Function e_dist()
@@ -247,9 +255,11 @@ def UFL(X, S_min, m):
                 # C[j] = np.array([u_sum_x/u_sum, u_sum_y/u_sum])
 
     # print("C: ", C)
-    # print("C shape: ", C.shape)
+    print("C shape: ", C.shape)
     # print("U: ", U)
     # print("U shape: ", U.shape)
+    print("S_min: ", S_min)
+    print("m: ", m)
 
     return c, C, U
     
@@ -260,17 +270,23 @@ def main():
     tsp_file = '../testCases/a280.tsp'
     nodes, X = preprocess_data_from_file(tsp_file)
     
-    y, z, m = UFL_FCM_VAL(X)
+    # y, z, m = UFL_FCM_VAL(X)
     #print("Printing the labels (probability of cluster membership):\n")
     #print(y)
     #print("\nPrinting the centers:\n")
     #print(z)
 
     # Number of cluster is the same as the number of centers
-    num_clusters = len(z)
+    # num_clusters = len(z)
 
     # Visualize the data before & after our algorithms have run
-    visualize_data(X, num_clusters, m) 
+    
+    finalMemDegree, finalClusters, finalM, finalNumClusters = UFL_FCM_VAL(X)
+    
+    # num_clusters = 4
+    # m = 1.1
+    # visualize_data(X, num_clusters, m) 
+    visualize_data(X, finalNumClusters, finalM) 
 
     stop = timeit.default_timer()
     print('Time: ', stop - start)
