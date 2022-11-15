@@ -68,6 +68,7 @@ def createClusters(X, numClusters):
         
         return labels, centers
 
+# Base chromosome will be a list of all of the cities for the given cluster
 def createBasechromosome(nodes,labels,targetCluster):
     chromosome = []
     
@@ -77,6 +78,8 @@ def createBasechromosome(nodes,labels,targetCluster):
             
     return chromosome
 
+# Initial population is created by creating s randomly 
+# shuffled chromosomes (where s = number of cities in a cluster) 
 def generateInitialPop(chromosome):
     population = []
     totalChromos = len(chromosome)
