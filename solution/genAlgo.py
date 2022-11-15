@@ -94,12 +94,12 @@ def main():
     # Using the most basic symmetric TSP file: a280.tsp
     # optimal length: 2579
     tsp_file = '../testCases/a280.tsp'
-    nodes, X = preprocess_data_from_file(tsp_file)
+    nodes, cityCoordinates = preprocess_data_from_file(tsp_file)
     
     # TODO: Experiment with different number of clusters
     num_clusters = 5
     
-    labels, centers = createClusters(X, num_clusters)
+    labels, centers = createClusters(cityCoordinates, num_clusters)
     nodes -= 1 #node name will now correlate to the index in X
     
 
