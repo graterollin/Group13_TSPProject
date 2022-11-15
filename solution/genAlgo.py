@@ -103,6 +103,11 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     return totalDistance            
 
 
+def tournamentSelection():
+    return None
+        
+
+
 def main():
     # Using the most basic symmetric TSP file: a280.tsp
     # optimal length: 2579
