@@ -143,7 +143,23 @@ def pMX(parent1, parent2): #Partially-Matched Crossover
     
     return(child)
 
-
+def swapMutation(chromosome): #swap mutation function
+    lengthOfChromo = len(chromosome)
+    
+    num1 = random.randint(0,lengthOfChromo - 1)
+    num2 = num1
+    while num2 == num1: #This while loop gurantees that the two random number choosen will not be the same
+        num2 = random.randint(0,lengthOfChromo - 1)
+    
+    if num1 < num2:
+        A = num1
+        B = num2
+    else:
+        B = num1
+        A = num2
+        
+    chromosome[A], chromosome[B] = chromosome[B], chromosome[A]
+    
 
 def tournamentSelection():
     return None
