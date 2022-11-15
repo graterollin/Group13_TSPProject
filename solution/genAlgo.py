@@ -102,6 +102,48 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     
     return totalDistance            
 
+def pMX(parent1, parent2): #Partially-Matched Crossover
+    child = [None] * len(parent1)
+    lengthOfChromo = len(parent1)
+    
+    cityList = parent1.copy()
+    
+    num1 = random.randint(0,lengthOfChromo - 1)
+    num2 = num1
+    while num2 == num1: #This while loop gurantees that the two random number choosen will not be the same
+        num2 = random.randint(0,lengthOfChromo - 1)
+    
+    if num1 < num2:
+        A = num1
+        B = num2
+    else:
+        B = num1
+        A = num2
+        
+    for i in range(A,B+1): #Copy cities between A and B from parent 1 into child
+        child[i] = parent1[i]
+        cityList.remove(child[i])
+    
+    for i in range(lengthOfChromo):  #For childs array outside of [A,B] copy cities from parent 2 that havent been taken yet
+        if child[i] is not None:
+            continue
+        
+        if parent2[i] not in child :
+            child[i] = parent2[i]
+            cityList.remove(child[i])
+    
+    for i in range(lengthOfChromo): #Fill in the gaps with cities that havent been taken yet
+        if child[i] is not None:
+            continue
+        
+        child[i] = cityList.pop()
+        
+    if None in child:  #Checking that 
+        print('PMX crossover did not work correclty')
+    
+    return(child)
+
+
 
 def tournamentSelection():
     return None
