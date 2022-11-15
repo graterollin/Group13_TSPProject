@@ -86,8 +86,18 @@ def generateInitialPop(chromosome):
     
     return population
         
-        
-        
+def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
+    totalDistance = 0
+    startGene = chromosome[0]
+    prevGene = startGene
+    
+    for gene in chromosome[1:]:
+        totalDistance += math.dist(cityCoord[prevGene], cityCoord[gene])
+        prevGene = gene
+    
+    totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
+    
+    return totalDistance            
 
 
 def main():
@@ -100,12 +110,12 @@ def main():
     num_clusters = 5
     
     labels, centers = createClusters(cityCoordinates, num_clusters)
-    nodes -= 1 #node name will now correlate to the index in X
+    nodes -= 1 #node name will now correlate to the index in cityCoordinates
     
 
     chromo0 = createBasechromosome(nodes,labels,0)
     print(chromo0)
+    print(getFitnessScore(chromo0,cityCoordinates))
     pop0 = generateInitialPop(chromo0)
-    print(pop0)
     
 main()
