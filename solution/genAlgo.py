@@ -176,6 +176,43 @@ def swapMutation(chromosome): #swap mutation function
 def tournamentSelection():
     return None
         
+def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
+    prob_cross = .8
+    prob_mut = .02
+    t_max = 100
+    t = 0
+    
+    baseChromo = createBasechromosome(nodes,labels,clusterNum)
+    pop = generateInitialPop(baseChromo)   #randomly generate population P(0)
+    
+    # TODO: Evaluate all the indidvuals in the population
+    
+    # TODO: code condition1
+    
+    # TODO: go through this psuedo code
+    # while condition1() and t < t_max:
+    #     nextPop or maybe parentpairs = tournamentSelection()
+    #     children = []
+        
+    #     for parent1, parent 2 in parentpairs:
+    #         if random.random() < prob_cross:
+    #             child1, child2 = pMX(parent1,parent2)
+    #         else:
+    #             child1, child2 = parent1, parent2
+            
+    #         if random.random() < prob_mut:
+    #             child1 = swapMutation(child1)
+    #         if random.random() < prob_mut:
+    #             child2 = swapMutation(child2)
+                
+    #         children.append(child1)
+    #         children.append(child2)
+            
+    #     pop = children
+    
+
+    return pop
+    
 
 
 def main():
@@ -192,9 +229,6 @@ def main():
     
 
     chromo0 = createBasechromosome(nodes,labels,0)
-    print(chromo0)
-    print(getFitnessScore(chromo0,cityCoordinates))
     pop0 = generateInitialPop(chromo0)
-    print(pop0)
     
 main()
