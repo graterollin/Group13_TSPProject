@@ -85,7 +85,8 @@ def generateInitialPop(chromosome):
     totalChromos = len(chromosome)
     for _ in range(totalChromos):
         random.shuffle(chromosome)
-        population.append(chromosome)
+        tmp = chromosome.copy()
+        population.append(tmp)
     
     return population
         
@@ -103,10 +104,12 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     return totalDistance            
 
 def pMX(parent1, parent2): #Partially-Matched Crossover
-    child = [None] * len(parent1)
+    child1 = [None] * len(parent1)
+    child2 = [None] * len(parent2)
     lengthOfChromo = len(parent1)
     
-    cityList = parent1.copy()
+    cityList1 = parent1.copy()
+    cityList2 = parent2.copy()
     
     num1 = random.randint(0,lengthOfChromo - 1)
     num2 = num1
@@ -121,27 +124,36 @@ def pMX(parent1, parent2): #Partially-Matched Crossover
         A = num2
         
     for i in range(A,B+1): #Copy cities between A and B from parent 1 into child
-        child[i] = parent1[i]
-        cityList.remove(child[i])
+        
+        child1[i] = parent1[i]
+        child2[i] = parent2[i]
+        
+        cityList1.remove(child1[i])
+        cityList2.remove(child2[i])
+        
+        
     
     for i in range(lengthOfChromo):  #For childs array outside of [A,B] copy cities from parent 2 that havent been taken yet
-        if child[i] is not None:
-            continue
         
-        if parent2[i] not in child :
-            child[i] = parent2[i]
-            cityList.remove(child[i])
+        if parent2[i] not in child1 and child1[i] is None:
+            child1[i] = parent2[i]
+            cityList1.remove(child1[i])
+            
+        if parent1[i] not in child2 and child2[i] is None:
+            child2[i] = parent1[i]
+            cityList2.remove(child2[i])
     
     for i in range(lengthOfChromo): #Fill in the gaps with cities that havent been taken yet
-        if child[i] is not None:
-            continue
+        if child1[i] is None:
+            child1[i] = cityList1.pop(0)
+            
+        if child2[i] is None:
+            child2[i] = cityList2.pop(0)
         
-        child[i] = cityList.pop()
-        
-    if None in child:  #Checking that 
+    if None in child1 or None in child2:  #Checking that 
         print('PMX crossover did not work correclty')
     
-    return(child)
+    return child1, child2
 
 def swapMutation(chromosome): #swap mutation function
     lengthOfChromo = len(chromosome)
@@ -183,5 +195,6 @@ def main():
     print(chromo0)
     print(getFitnessScore(chromo0,cityCoordinates))
     pop0 = generateInitialPop(chromo0)
+    print(pop0)
     
 main()
