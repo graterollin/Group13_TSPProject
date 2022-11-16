@@ -56,7 +56,7 @@ def preprocess_data_from_file(filepath):
     X = np.array(X) 
     #print(X.shape)
     #print(X)
-    plt.scatter(X[:,0], X[:,1])    
+    #plt.scatter(X[:,0], X[:,1])    
     
     return nodes, X
 
@@ -101,7 +101,7 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     
     totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
     
-    return totalDistance            
+    return int(totalDistance)            
 
 def pMX(parent1, parent2): #Partially-Matched Crossover
     child1 = [None] * len(parent1)
@@ -172,10 +172,66 @@ def swapMutation(chromosome): #swap mutation function
         
     chromosome[A], chromosome[B] = chromosome[B], chromosome[A]
     
+def sortFn(item):
+    return item[0]    
 
-def tournamentSelection():
-    return None
+def tournamentSelection(population, cityCoord):
+    # Number of cities in the population/population size
+    N = len(population)
+    print("Size of the population: ", N)
+
+    # Indices that map to individual (chromosome in a population)
+    popIndices = np.arange(0, N, 1)
+
+    tournamentWinners = []
+    
+    l_key = []
+    # Call the fitness function for each chromosome in the population
+    for index in range(len(population)):
+        temp = getFitnessScore(population[index], cityCoord)
+        l_key.append([temp, index])
+
+    #sorted(l_key, l_key[0])
+    l_key.sort(key=sortFn)
+
+    # Remove the fitness score from each 
+    l_sorted = []
+    for item in l_key:
+        l_sorted.append(item[1])
+
+    l_sorted = np.array(l_sorted).squeeze()
+
+    random.shuffle(popIndices)
+
+    k = 0
+    l = 0
+    #j = 0
+    while (l < N):
+        C1 = popIndices[random.randint(0, N-1)]
+
+        m = 1
+        while (m < k):
+            # Condition to break out of loop if we are in an invalid index range
+            #if ((j+m) >= N):
+            #    break
+
+            C2 = popIndices[random.randint(0, N-1)] 
+            if (getFitnessScore(population[C1], cityCoord) > getFitnessScore(population[C2], cityCoord)):
+                C1 = C2
+            
+            m += 1
+
+        tournamentWinners.append(C1)
+        tournamentWinners.append(l_sorted[l])
         
+        l += 2
+        k += 1
+        #j += 2
+
+    return tournamentWinners
+        
+
+
 def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
     prob_cross = .8
     prob_mut = .02
@@ -214,7 +270,7 @@ def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
     return pop
     
 
-
+# TODO: Write logic to always have # of pop = # of tournament winners
 def main():
     # Using the most basic symmetric TSP file: a280.tsp
     # optimal length: 2579
@@ -227,8 +283,29 @@ def main():
     labels, centers = createClusters(cityCoordinates, num_clusters)
     nodes -= 1 #node name will now correlate to the index in cityCoordinates
     
-
     chromo0 = createBasechromosome(nodes,labels,0)
+    #print(chromo0)
+    #print(getFitnessScore(chromo0,cityCoordinates))
     pop0 = generateInitialPop(chromo0)
+    #print("Shape of the initial population: ", np.array(pop0).shape)
+
+    tournamentWinners = tournamentSelection(pop0, cityCoordinates)
+    print("Shape of the winners: ", np.array(tournamentWinners).shape)
+    # initializing the list
+    random_list = ['A', 'A', 'B', 'C', 'B', 'D', 'D', 'A', 'B']
+    frequency = {}
+
+    # iterating over the list
+    for item in tournamentWinners:
+    # checking the element in dictionary
+        if item in frequency:
+            # incrementing the counr
+            frequency[item] += 1
+        else:
+            # initializing the count
+            frequency[item] = 1
+
+    # printing the frequency
+    print(frequency)
     
 main()
