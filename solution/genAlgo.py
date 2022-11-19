@@ -228,8 +228,9 @@ def tournamentSelection(population, cityCoord, l_sorted):
 def condition1(sortedPop):
     N = len(sortedPop)
     bestDist = sortedPop[0][0]
-    print(bestDist)
     numberOfBest = 0
+    
+    print('Current Optimal path length: ', bestDist)
     
     for dist, gene in sortedPop:
         if dist == bestDist:
@@ -247,11 +248,13 @@ def condition1(sortedPop):
 def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
     prob_cross = .8
     prob_mut = .02
-    t_max = 100
+    t_max = 1000
     t = 0
     
     # baseChromo = createBasechromosome(nodes,labels,clusterNum)
-    baseChromo = list(range(0, len(nodes)))
+    baseChromo = list(range(0, len(nodes))) # Running genAlgo on entire problem
+    
+    
     pop = generateInitialPop(baseChromo)   #randomly generate population P(0)
     sortedPop = sortPopulation(pop,cityCoordinates)
     
