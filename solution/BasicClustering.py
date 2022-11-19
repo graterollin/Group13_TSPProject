@@ -94,10 +94,9 @@ def visualize_data(X, num_clusters, m):
 def fcm(X, num_clusters, m, centers=0):
         my_model = FCM(cluster_centers=centers, n_clusters=num_clusters, m=m)
         my_model.fit(X)
-        memDegree = my_model.soft_predict(X)
         centers = my_model.centers
 
-        return memDegree, centers
+        return my_model, centers
     
     
 # H(U) Function from figure 2
@@ -114,7 +113,9 @@ def entropy(U):
     if c == 1 or n == 0:
         return np.inf
     else:
-        return -(1/math.log(c)) * 1/n * x
+        # print("entropy vals: {}, {}, {}".format(1/math.log(c), 1/n, x))
+        ret = -(1/math.log(c)) * 1/n * x
+        return ret
     
     
 # Figure 2 from Paper
@@ -128,7 +129,7 @@ def UFL_FCM_VAL(X):
     # S_min = 0.09
     # S_max = 0.99
     S_min = 0.01
-    S_max = 0.99
+    S_max = 0.97
     S_step = 0.01
     n = len(X) # number of cities
     
@@ -140,7 +141,7 @@ def UFL_FCM_VAL(X):
         # m_start = timeit.default_timer()
         S = S_min
         while S < S_max:
-            print("S: ", S)
+            # print("S: ", S)
             c, C, U = UFL(X, S, m)
             
             # Apply FCM
@@ -150,6 +151,7 @@ def UFL_FCM_VAL(X):
             h = entropy(U)
             
             if h_min > h:
+                print("updating best. C: ", c, ", S: ", S, ", m: ", m, ", entropy: ", h)
                 h_min = h
                 finalNumClusters = c
                 finalClusters = C
@@ -178,36 +180,35 @@ def UFL(X, S_min, m):
     n = len(X) # Number of cities
     c = 1 # Number of clusters, start with 1
     C = np.zeros((1,2)) # Location of cluster centers
-    C[0] = X[0] + (1,1) # Start with center 1 = X_0 + 1 to avoid issues with diving by 0 later
-
-    # First, get the max distance to calculate ratios later. Ratios need to be between 0 and 1
-    initial_dist = np.zeros((n,1))
-    for i in range(n):
-        initial_dist[i] = e_dist(X[0], X[i])
-    max_dist = np.amax(initial_dist)
+    C_norm = np.zeros((1,2)) # Location of cluster centers
     
-    # Initialize U matrix with a single row for 1 cluster
-    U = np.zeros((1,n))
-
+    # Create x,y norms
+    x_max = np.amax(X[:][0])
+    y_max = np.amax(X[:][1])
+    X_norm = X[:]/[x_max, y_max]
+    C[0] = X[0]
+    C_norm[0] = X_norm[0]
+    
     # Next, calculate S for each city to each cluster so that we can normalize the data from 0 to 1
     for i in range(n-1):
         S = np.zeros(c) # Initialize S with a slot for each cluster
         for k in range(c):
-            S[k] = 1 - (e_dist(X[i], C[k])/max_dist)**2
-
+            S[k] = 1 - (e_dist(X_norm[i], C_norm[k])**2)/2
+            
         # If this city's similarity to all clusters < S_min
         # Create a new cluster centered on current city
         if np.amax(S) < S_min:
             c = c + 1
             C = np.vstack((C, X[i])) # Apend new center to C
+        
+            # Get centers to keep calculating thresholds 
+            fcm_model, C = fcm(X, c, m, C)
+            C_norm = C[:]/[x_max, y_max]
             
-        U, C = fcm(X, c, m, C)
+    if c == 1:
+        fcm_model, C = fcm(X, c, m, C)
+    U = fcm_model.soft_predict(X)
     
-
-    # print("memDegree: ", memDegree)
-    # print("S_min: ", S_min)
-    # print("m: ", m)
-
     return c, C, U
     
 def main():
@@ -216,23 +217,11 @@ def main():
     # optimal length: 2579
     tsp_file = '../testCases/a280.tsp'
     nodes, X = preprocess_data_from_file(tsp_file)
-    
-    # y, z, m = UFL_FCM_VAL(X)
-    #print("Printing the labels (probability of cluster membership):\n")
-    #print(y)
-    #print("\nPrinting the centers:\n")
-    #print(z)
-
-    # Number of cluster is the same as the number of centers
-    # num_clusters = len(z)
 
     # Visualize the data before & after our algorithms have run
     
     finalMemDegree, finalClusters, finalM, finalNumClusters = UFL_FCM_VAL(X)
     
-    # num_clusters = 4
-    # m = 1.1
-    # visualize_data(X, num_clusters, m) 
     visualize_data(X, finalNumClusters, finalM) 
 
     stop = timeit.default_timer()
