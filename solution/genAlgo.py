@@ -173,41 +173,36 @@ def swapMutation(chromosome): #swap mutation function
     chromosome[A], chromosome[B] = chromosome[B], chromosome[A]
     
 def sortFn(item):
-    return item[0]    
+    return item[0]
 
-def tournamentSelection(population, cityCoord):
-    # Number of cities in the population/population size
-    N = len(population)
-    print("Size of the population: ", N)
-
-    # Indices that map to individual (chromosome in a population)
-    popIndices = np.arange(0, N, 1)
-
-    tournamentWinners = []
+def sortPopulation(pop, cityCoord):
     
-    l_key = []
+    sortedPop = []
     # Call the fitness function for each chromosome in the population
-    for index in range(len(population)):
-        temp = getFitnessScore(population[index], cityCoord)
-        l_key.append([temp, index])
+    for city in pop:
+        distance = getFitnessScore(city, cityCoord)
+        sortedPop.append([distance, city])
 
     #sorted(l_key, l_key[0])
-    l_key.sort(key=sortFn)
+    sortedPop.sort(key=sortFn)
 
-    # Remove the fitness score from each 
-    l_sorted = []
-    for item in l_key:
-        l_sorted.append(item[1])
+    return sortedPop
 
-    l_sorted = np.array(l_sorted).squeeze()
+def tournamentSelection(population, cityCoord, l_sorted):
+    # Number of cities in the population/population size
+    N = len(population)
+    # print("Size of the population: ", N)
 
-    random.shuffle(popIndices)
+    # Indices that map to individual (chromosome in a population)
+    pop = population.copy()
+
+    tournamentWinners = []
 
     k = 0
     l = 0
     #j = 0
     while (l < N):
-        C1 = popIndices[random.randint(0, N-1)]
+        C1 = random.choice(pop)
 
         m = 1
         while (m < k):
@@ -215,14 +210,14 @@ def tournamentSelection(population, cityCoord):
             #if ((j+m) >= N):
             #    break
 
-            C2 = popIndices[random.randint(0, N-1)] 
-            if (getFitnessScore(population[C1], cityCoord) > getFitnessScore(population[C2], cityCoord)):
+            C2 = random.choice(pop)
+            if (getFitnessScore(C1, cityCoord) > getFitnessScore(C2, cityCoord)):
                 C1 = C2
             
             m += 1
 
-        tournamentWinners.append(C1)
-        tournamentWinners.append(l_sorted[l])
+        parentPair = [C1,l_sorted[l][1]]
+        tournamentWinners.append(parentPair)
         
         l += 2
         k += 1
@@ -230,7 +225,24 @@ def tournamentSelection(population, cityCoord):
 
     return tournamentWinners
         
-
+def condition1(sortedPop):
+    N = len(sortedPop)
+    bestDist = sortedPop[0][0]
+    print(bestDist)
+    numberOfBest = 0
+    
+    for dist, gene in sortedPop:
+        if dist == bestDist:
+            numberOfBest += 1
+        else:
+            break
+    
+    val = (numberOfBest / N) * 100
+    
+    if val < 95:
+        return True
+    else:
+        return False
 
 def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
     prob_cross = .8
@@ -238,8 +250,40 @@ def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
     t_max = 100
     t = 0
     
-    baseChromo = createBasechromosome(nodes,labels,clusterNum)
+    # baseChromo = createBasechromosome(nodes,labels,clusterNum)
+    baseChromo = list(range(0, len(nodes)))
     pop = generateInitialPop(baseChromo)   #randomly generate population P(0)
+    sortedPop = sortPopulation(pop,cityCoordinates)
+    
+    while condition1(sortedPop) and t < t_max:
+        parents = tournamentSelection(pop, cityCoordinates, sortedPop)
+        children = []
+        
+        for p1, p2 in parents:
+            if random.random() < prob_cross:
+                child1,child2 = pMX(p1, p2)
+            else:
+                child1, child2 = p1.copy() , p2.copy()
+            
+            if random.random() < prob_mut:
+                swapMutation(child1)
+                swapMutation(child2)
+                
+            children.append(child1)
+            children.append(child2)
+        
+        if len(children) > len(pop): # If we have too many children get rid of the last one
+            children.pop()
+            
+        elif len(children) < len(pop): #If we are missing a child we choose random chromosome to live on
+            children.append(random.choice(pop))
+        
+        pop = children
+        sortedPop = sortPopulation(pop, cityCoordinates)
+        t += 1
+        
+    return(sortedPop[0][1]) # Returns the shortes tour that the GA found
+            
     
     # TODO: Evaluate all the indidvuals in the population
     
@@ -274,7 +318,7 @@ def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
 def main():
     # Using the most basic symmetric TSP file: a280.tsp
     # optimal length: 2579
-    tsp_file = '../testCases/a280.tsp'
+    tsp_file = '../testCases/lin105.tsp'
     nodes, cityCoordinates = preprocess_data_from_file(tsp_file)
     
     # TODO: Experiment with different number of clusters
@@ -288,24 +332,18 @@ def main():
     #print(getFitnessScore(chromo0,cityCoordinates))
     pop0 = generateInitialPop(chromo0)
     #print("Shape of the initial population: ", np.array(pop0).shape)
+    sortedPop = sortPopulation(pop0, cityCoordinates)
+    
+    bestChromosome = gaForCluster(nodes,labels,cityCoordinates,0)
 
-    tournamentWinners = tournamentSelection(pop0, cityCoordinates)
-    print("Shape of the winners: ", np.array(tournamentWinners).shape)
+    
+    # print("Shape of the winners: ", np.array(tournamentWinners).shape)
     # initializing the list
-    random_list = ['A', 'A', 'B', 'C', 'B', 'D', 'D', 'A', 'B']
-    frequency = {}
-
-    # iterating over the list
-    for item in tournamentWinners:
-    # checking the element in dictionary
-        if item in frequency:
-            # incrementing the counr
-            frequency[item] += 1
-        else:
-            # initializing the count
-            frequency[item] = 1
-
-    # printing the frequency
-    print(frequency)
+    # random_list = ['A', 'A', 'B', 'C', 'B', 'D', 'D', 'A', 'B']
+    # frequency = {}
+    
+    # print(tournamentWinners)
+    # # printing the frequency
+    # print(frequency)
     
 main()
