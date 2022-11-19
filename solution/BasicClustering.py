@@ -122,13 +122,13 @@ def UFL_FCM_VAL(X):
     # TODO: revert steps to normal, reduced because runtime is VERY LONG
     m_min = 1.1
     m_max = 3.1
-    m_step = 0.5
+    m_step = 0.1
     finalNumClusters = 2
     h_min = 1
     # S_min = 0.09
     # S_max = 0.99
     S_min = 0.01
-    S_max = 0.95
+    S_max = 0.99
     S_step = 0.01
     n = len(X) # number of cities
     
@@ -137,15 +137,14 @@ def UFL_FCM_VAL(X):
     m = m_min
     while m < m_max:
         print("m: ", m)
+        # m_start = timeit.default_timer()
         S = S_min
         while S < S_max:
             print("S: ", S)
-            # TODO : Apply UFL
-            # UFL will be passed S and X and will return c which is the optimal number of clusters for that S
             c, C, U = UFL(X, S, m)
             
             # Apply FCM
-            U , centers = fcm(X, c, m, C)
+            # U , centers = fcm(X, c, m, C)
             
             # Calculate Entropy
             h = entropy(U)
@@ -153,12 +152,14 @@ def UFL_FCM_VAL(X):
             if h_min > h:
                 h_min = h
                 finalNumClusters = c
-                finalClusters = centers
+                finalClusters = C
                 finalMemDegree = U
                 finalM = m
 
             S += S_step
         m += m_step
+        # m_end = timeit.default_timer()
+        # print('Time: ', stop - start)
     
     # Output:
     # Labels, Centers, Fuzzy Degree (M)
@@ -190,7 +191,6 @@ def UFL(X, S_min, m):
 
     # Next, calculate S for each city to each cluster so that we can normalize the data from 0 to 1
     for i in range(n-1):
-        # print("x point: ", i)
         S = np.zeros(c) # Initialize S with a slot for each cluster
         for k in range(c):
             S[k] = 1 - (e_dist(X[i], C[k])/max_dist)**2
@@ -199,19 +199,11 @@ def UFL(X, S_min, m):
         # Create a new cluster centered on current city
         if np.amax(S) < S_min:
             c = c + 1
-            U = np.vstack((U, np.zeros((1, n)))) # Append new cluster to U
             C = np.vstack((C, X[i])) # Apend new center to C
-        else:
-            # If max S > threshold, then update similarity score for each cluster
-            for j in range(c):
-                my_model = FCM(initial_centers=C, n_clusters=c, m=m)
-                my_model.fit(X)
-                memDegree = my_model.soft_predict(X)
-                C = my_model.centers
-                
+            
+        U, C = fcm(X, c, m, C)
     
-    # print("C shape: ", C.shape)
-    # print("C: ", C)
+
     # print("memDegree: ", memDegree)
     # print("S_min: ", S_min)
     # print("m: ", m)
