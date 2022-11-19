@@ -137,15 +137,9 @@ def UFL_FCM_VAL(X):
     
     m = m_min
     while m < m_max:
-        print("m: ", m)
-        # m_start = timeit.default_timer()
         S = S_min
         while S < S_max:
-            # print("S: ", S)
             c, C, U = UFL(X, S, m)
-            
-            # Apply FCM
-            # U , centers = fcm(X, c, m, C)
             
             # Calculate Entropy
             h = entropy(U)
@@ -160,8 +154,6 @@ def UFL_FCM_VAL(X):
 
             S += S_step
         m += m_step
-        # m_end = timeit.default_timer()
-        # print('Time: ', stop - start)
     
     # Output:
     # Labels, Centers, Fuzzy Degree (M)
