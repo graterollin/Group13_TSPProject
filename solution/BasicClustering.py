@@ -91,8 +91,8 @@ def visualize_data(X, num_clusters, m):
         return None
         
          
-def fcm(X, num_clusters, m):
-        my_model = FCM(n_clusters=num_clusters, m=m)
+def fcm(X, num_clusters, m, centers=0):
+        my_model = FCM(cluster_centers=centers, n_clusters=num_clusters, m=m)
         my_model.fit(X)
         memDegree = my_model.soft_predict(X)
         centers = my_model.centers
@@ -102,16 +102,19 @@ def fcm(X, num_clusters, m):
     
 # H(U) Function from figure 2
 def entropy(U):
-    c = len(U[1]) # number of clusters
-    n = len(U[0]) # number of cities
+    c = len(U[0]) # number of clusters
+    n = len(U) # number of cities
     x = 0
     i = 0
 
     for i in range(n):
         for j in range(c):
             x += U[i][j] * math.log(U[i][j])
-            
-    return -(1/math.log(c)) * 1/n * x
+    
+    if c == 1 or n == 0:
+        return np.inf
+    else:
+        return -(1/math.log(c)) * 1/n * x
     
     
 # Figure 2 from Paper
@@ -124,32 +127,27 @@ def UFL_FCM_VAL(X):
     h_min = 1
     # S_min = 0.09
     # S_max = 0.99
-    S_min = 0.79
-    S_max = 0.84
+    S_min = 0.01
+    S_max = 0.95
     S_step = 0.01
     n = len(X) # number of cities
     
     c = 5 # This is a temp c; c will be created by UFL 
     
-    # For loop doesnt work for floats :(
-    # TODO: Find better iteration method, this might be good enough
-    # for m in range(m_min, m_max, m_step):
     m = m_min
     while m < m_max:
-        # TODO same.
-        # for S in range(S_min, S_min, S_step):
+        print("m: ", m)
         S = S_min
         while S < S_max:
+            print("S: ", S)
             # TODO : Apply UFL
             # UFL will be passed S and X and will return c which is the optimal number of clusters for that S
             c, C, U = UFL(X, S, m)
             
             # Apply FCM
-            U , centers = fcm(X, c, m)
+            U , centers = fcm(X, c, m, C)
             
             # Calculate Entropy
-            # TODO: FIGURE OUT WHY ENTROPY IS LOWEST FOR 2 CLUSTERS INSTEAD OF THE 4 OF CURRENT SETUP
-            # when using full range of S and m
             h = entropy(U)
             
             if h_min > h:
@@ -170,28 +168,10 @@ def UFL_FCM_VAL(X):
 
     return finalMemDegree, finalClusters, finalM, finalNumClusters
 
-'''
-Function e_dist()
-Calculates euclidean distance between two given points a and b with [x,y] coordinates
-
-Params (a, b): points  with shape [x,y]
-Returns: dist(euclidean distance between points)
-'''
 def e_dist(a, b):
     dist = np.sqrt((b[0]-a[0])**2 + (b[1]-a[1])**2)
     return dist
 
-'''
-FIGURE 1
-Function ufl()
-
-Determines ideal number of clusters c for given Xs, S_min, and m
-Also creates a U matrix of membership degrees, with shape [c X n], c = clusters, n = # of nodes
-
-Params (nodes, X, S_min, m):
-        node names, x&y coords of nodes, minimum S(threshold) for new cluster, fuzziness variable
-Returns: c(# of clusters),  C(cluster centers X), U(membership matrix of clusters)
-'''
 def UFL(X, S_min, m):
     np.set_printoptions(threshold=np.inf) # Print everything in big matrices :)
     n = len(X) # Number of cities
@@ -201,65 +181,40 @@ def UFL(X, S_min, m):
 
     # First, get the max distance to calculate ratios later. Ratios need to be between 0 and 1
     initial_dist = np.zeros((n,1))
-    for i in range(n-1):
+    for i in range(n):
         initial_dist[i] = e_dist(X[0], X[i])
     max_dist = np.amax(initial_dist)
     
     # Initialize U matrix with a single row for 1 cluster
     U = np.zeros((1,n))
 
-    # Next, calculate S for each city to each cluster
+    # Next, calculate S for each city to each cluster so that we can normalize the data from 0 to 1
     for i in range(n-1):
+        # print("x point: ", i)
         S = np.zeros(c) # Initialize S with a slot for each cluster
         for k in range(c):
             S[k] = 1 - (e_dist(X[i], C[k])/max_dist)**2
 
-        # If max S for current city is < S_min (threshold)
-        # (aka, if this city's similarity to all clusters < S_min)
-        # Then create a new cluster centered on current city
+        # If this city's similarity to all clusters < S_min
+        # Create a new cluster centered on current city
         if np.amax(S) < S_min:
             c = c + 1
             U = np.vstack((U, np.zeros((1, n)))) # Append new cluster to U
             C = np.vstack((C, X[i])) # Apend new center to C
         else:
             # If max S > threshold, then update similarity score for each cluster
-            # TODO: Maybe this can be skipped if it was updated in previous iteration 
-            #       without any new centers being added to reduce runtime
             for j in range(c):
-                for k in range(n-1):
-                    u_jk = 0
-                    for l in range(c):
-                        # TODO: Store distances in an array each time center is updated for better runtime
-                        #       The above todo might do the same, maybe this is still worth it
-                        dist_to_j_cluster = e_dist(X[k],C[j])/max_dist
-                        dist_to_l_cluster = e_dist(X[k],C[l])/max_dist
-                        
-                        if dist_to_l_cluster == 0: # Don't divide by 0 (if X = C, e_dist = 0, but "similarity score" = 1)
-                            temp = 1
-                        elif dist_to_j_cluster == 0: # Don't set similarity scores to 0
-                            temp = 0.00001
-                        else:
-                            temp = (dist_to_j_cluster)/(dist_to_l_cluster)
-                        # TODO: Maybe above if statements can set entire value of u_jk instead?
-                        u_jk = u_jk + (temp**(2/m-1))
-                    U[j][k] = u_jk**(-1)
-
-                # TODO:
-                # Now update the center based on memberships
-                # C[j] = C[j] + 
-
-                # This is old code, fixing with todo above. Left in to remember what was happening.
-                # u_sum = np.sum(np.power(U[j,:],m))
-                # u_sum_x = np.sum(np.power(U[j,:],m)*X[:,0])
-                # u_sum_y = np.sum(np.power(U[j,:],m)*X[:,1])
-                # C[j] = np.array([u_sum_x/u_sum, u_sum_y/u_sum])
-
+                my_model = FCM(initial_centers=C, n_clusters=c, m=m)
+                my_model.fit(X)
+                memDegree = my_model.soft_predict(X)
+                C = my_model.centers
+                
+    
+    # print("C shape: ", C.shape)
     # print("C: ", C)
-    print("C shape: ", C.shape)
-    # print("U: ", U)
-    # print("U shape: ", U.shape)
-    print("S_min: ", S_min)
-    print("m: ", m)
+    # print("memDegree: ", memDegree)
+    # print("S_min: ", S_min)
+    # print("m: ", m)
 
     return c, C, U
     
