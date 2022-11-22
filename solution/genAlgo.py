@@ -11,62 +11,62 @@ from fcmeans import FCM
 import math
 import random
 
-# DATA PREPROCESSING
-def preprocess_data_from_file(filepath): 
-    # Parsing the content from the file         
-    file = open(filepath)
+# # DATA PREPROCESSING
+# def preprocess_data_from_file(filepath): 
+#     # Parsing the content from the file         
+#     file = open(filepath)
     
-    content = file.readlines()
-    length_of_file = len(content)
+#     content = file.readlines()
+#     length_of_file = len(content)
     
-    entries = content[6:length_of_file-1]
-    #print(entries) 
+#     entries = content[6:length_of_file-1]
+#     #print(entries) 
     
-    # Remove leading and trailing characters
-    for i in range(len(entries)):
-        entries[i] = entries[i].strip()
+#     # Remove leading and trailing characters
+#     for i in range(len(entries)):
+#         entries[i] = entries[i].strip()
         
-    #print(entries)
+#     #print(entries)
     
-    nodes = np.zeros(len(entries))
-    x = np.zeros(len(entries))
-    y = np.zeros(len(entries))
+#     nodes = np.zeros(len(entries))
+#     x = np.zeros(len(entries))
+#     y = np.zeros(len(entries))
     
-    # Split each string into 3 substrings: nodes, x, and y
-    index = 0
-    for entry in entries:
-        # Remove extra whitespace just in case
-        entry = re.sub(' +', ' ', entry)
-        data = entry.split(' ')
+#     # Split each string into 3 substrings: nodes, x, and y
+#     index = 0
+#     for entry in entries:
+#         # Remove extra whitespace just in case
+#         entry = re.sub(' +', ' ', entry)
+#         data = entry.split(' ')
         
-        nodes[index] = int(data[0])
+#         nodes[index] = int(data[0])
         
-        # X is a 2d array with x, y coordinates 
-        x[index] = int(data[1])
-        y[index] = int(data[2])
+#         # X is a 2d array with x, y coordinates 
+#         x[index] = int(data[1])
+#         y[index] = int(data[2])
         
-        index += 1
+#         index += 1
       
-    # Combine x and y coordinates into a 2d array of shape: (len(dataset), 2)
-    X = []    
-    for i in range(len(x)):
-        row = [x[i], y[i]]
-        X.append(row)
+#     # Combine x and y coordinates into a 2d array of shape: (len(dataset), 2)
+#     X = []    
+#     for i in range(len(x)):
+#         row = [x[i], y[i]]
+#         X.append(row)
         
-    X = np.array(X) 
-    #print(X.shape)
-    #print(X)
-    #plt.scatter(X[:,0], X[:,1])    
+#     X = np.array(X) 
+#     #print(X.shape)
+#     #print(X)
+#     #plt.scatter(X[:,0], X[:,1])    
     
-    return nodes, X
+#     return nodes, X
 
-def createClusters(X, numClusters):
-        my_model = FCM(n_clusters=numClusters, m=2)
-        my_model.fit(X)
-        centers = my_model.centers
-        labels = my_model.predict(X)
+# def createClusters(X, numClusters):
+#         my_model = FCM(n_clusters=numClusters, m=2)
+#         my_model.fit(X)
+#         centers = my_model.centers
+#         labels = my_model.predict(X)
         
-        return labels, centers
+#         return labels, centers
 
 # Base chromosome will be a list of all of the cities for the given cluster
 def createBasechromosome(nodes,labels,targetCluster):
@@ -230,7 +230,7 @@ def condition1(sortedPop):
     bestDist = sortedPop[0][0]
     numberOfBest = 0
     
-    print('Current Optimal path length: ', bestDist)
+    #print('Current Optimal path length: ', bestDist)
     
     for dist, gene in sortedPop:
         if dist == bestDist:
@@ -245,15 +245,11 @@ def condition1(sortedPop):
     else:
         return False
 
-def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
+def gaForCluster(cityCoordinates, baseChromo):
     prob_cross = .8
     prob_mut = .02
     t_max = 1000
     t = 0
-    
-    # baseChromo = createBasechromosome(nodes,labels,clusterNum)
-    baseChromo = list(range(0, len(nodes))) # Running genAlgo on entire problem
-    
     
     pop = generateInitialPop(baseChromo)   #randomly generate population P(0)
     sortedPop = sortPopulation(pop,cityCoordinates)
@@ -284,7 +280,7 @@ def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
         pop = children
         sortedPop = sortPopulation(pop, cityCoordinates)
         t += 1
-        
+    print(sortedPop[0][0])
     return(sortedPop[0][1]) # Returns the shortes tour that the GA found
             
     
@@ -317,27 +313,27 @@ def gaForCluster(nodes, labels, cityCoordinates, clusterNum):
     return pop
     
 
-# TODO: Write logic to always have # of pop = # of tournament winners
-def main():
-    # Using the most basic symmetric TSP file: a280.tsp
-    # optimal length: 2579
-    tsp_file = '../testCases/lin105.tsp'
-    nodes, cityCoordinates = preprocess_data_from_file(tsp_file)
+# # TODO: Write logic to always have # of pop = # of tournament winners
+# def main():
+#     # Using the most basic symmetric TSP file: a280.tsp
+#     # optimal length: 2579
+#     tsp_file = '../testCases/lin105.tsp'
+#     nodes, cityCoordinates = preprocess_data_from_file(tsp_file)
     
-    # TODO: Experiment with different number of clusters
-    num_clusters = 5
+#     # TODO: Experiment with different number of clusters
+#     num_clusters = 5
     
-    labels, centers = createClusters(cityCoordinates, num_clusters)
-    nodes -= 1 #node name will now correlate to the index in cityCoordinates
+#     labels, centers = createClusters(cityCoordinates, num_clusters)
+#     nodes -= 1 #node name will now correlate to the index in cityCoordinates
     
-    chromo0 = createBasechromosome(nodes,labels,0)
-    #print(chromo0)
-    #print(getFitnessScore(chromo0,cityCoordinates))
-    pop0 = generateInitialPop(chromo0)
-    #print("Shape of the initial population: ", np.array(pop0).shape)
-    sortedPop = sortPopulation(pop0, cityCoordinates)
+#     chromo0 = createBasechromosome(nodes,labels,0)
+#     #print(chromo0)
+#     #print(getFitnessScore(chromo0,cityCoordinates))
+#     pop0 = generateInitialPop(chromo0)
+#     #print("Shape of the initial population: ", np.array(pop0).shape)
+#     sortedPop = sortPopulation(pop0, cityCoordinates)
     
-    bestChromosome = gaForCluster(nodes,labels,cityCoordinates,0)
+#     bestChromosome = gaForCluster(nodes,labels,cityCoordinates,0)
 
     
     # print("Shape of the winners: ", np.array(tournamentWinners).shape)
@@ -349,4 +345,4 @@ def main():
     # # printing the frequency
     # print(frequency)
     
-main()
+#main()
