@@ -203,21 +203,21 @@ def UFL(X, S_min, m):
     
     return c, C, U
     
-def main():
-    start = timeit.default_timer()
+#def main():
+#    start = timeit.default_timer()
     # Using the most basic symmetric TSP file: a280.tsp
     # optimal length: 2579
-    tsp_file = '../testCases/a280.tsp'
-    nodes, X = preprocess_data_from_file(tsp_file)
+#    tsp_file = '../testCases/a280.tsp'
+#    nodes, X = preprocess_data_from_file(tsp_file)
 
     # Visualize the data before & after our algorithms have run
     
-    finalMemDegree, finalClusters, finalM, finalNumClusters = UFL_FCM_VAL(X)
+#    finalMemDegree, finalClusters, finalM, finalNumClusters = UFL_FCM_VAL(X)
     
-    visualize_data(X, finalNumClusters, finalM) 
+#    visualize_data(X, finalNumClusters, finalM) 
 
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
+#    stop = timeit.default_timer()
+#    print('Time: ', stop - start)
 
-main()
+#main()
 # %%
