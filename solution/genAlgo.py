@@ -144,7 +144,7 @@ def tournamentSelection(population, cityCoord, l_sorted):
     #j = 0
     while (l < N):
         C1 = random.choice(pop)
-
+        
         m = 1
         while (m < k):
             # Condition to break out of loop if we are in an invalid index range
@@ -157,6 +157,7 @@ def tournamentSelection(population, cityCoord, l_sorted):
             
             m += 1
 
+        pop.remove(C1)
         parentPair = [C1,l_sorted[l][1]]
         tournamentWinners.append(parentPair)
         
@@ -201,7 +202,7 @@ def gaForCluster(cityCoordinates, baseChromo):
         
         for p1, p2 in parents:
             if random.random() < prob_cross:
-                child1,child2 = pMX(p1, p2)
+                child1, child2 = pMX(p1, p2)
             else:
                 child1, child2 = p1.copy() , p2.copy()
             
