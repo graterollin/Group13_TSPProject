@@ -154,7 +154,6 @@ def e_dist(a, b):
     return dist
 
 def UFL(X, S_min, m):
-    np.set_printoptions(threshold=np.inf) # Print everything in big matrices :)
     n = len(X) # Number of cities
     c = 1 # Number of clusters, start with 1
     C = np.zeros((1,2)) # Location of cluster centers
@@ -166,7 +165,7 @@ def UFL(X, S_min, m):
     C_norm[0] = X_norm[0]
     
     # Next, calculate S for each city to each cluster so that we can normalize the data from 0 to 1
-    for i in range(n-1):
+    for i in range(n):
         S = np.zeros(c) # Initialize S with a slot for each cluster
         for k in range(c):
             S[k] = 1 - (e_dist(X_norm[i], C_norm[k])**2)/2

@@ -8,6 +8,8 @@
 from BasicClustering import *
 from genAlgo import *
 import timeit
+import os
+import numpy as np
 
 def probabilisticAssn(membership):
     numClusters = len(membership)
@@ -27,11 +29,10 @@ def createClusterMembership(membership, numClusters):
 
     return citiesPerCluster
 
-def main():
+def TSP(tsp_file):
     start = timeit.default_timer()
     # Using the most basic symmetric TSP file: a280.tsp
     # optimal length: 2579
-    tsp_file = '../testCases/lin105.tsp'
     nodes, cityCoordinates = preprocess_data_from_file(tsp_file)
     nodes -=1
     
@@ -47,13 +48,30 @@ def main():
     #print("Shape of cities per cluster: ", np.array(citiesPerCluster).shape)
 
     bestChromosomes = []
+    bestDistances = []
+    totalDistance = 0
     for i in range(finalNumClusters):
-        bestChromosome = gaForCluster(cityCoordinates, citiesPerCluster[i])
+        bestDistance, bestChromosome = gaForCluster(cityCoordinates, citiesPerCluster[i])
+        bestDistances.append(bestDistance)
+        totalDistance += bestDistance
         bestChromosomes.append(bestChromosome)
 
+    stop = timeit.default_timer()
+    print("File: ", tsp_file, ", Tour length: ", totalDistance, ", sub tours: ", bestDistances, ", Time: ", stop - start)
     print(bestChromosomes)
 
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
+def main():
+    np.set_printoptions(threshold=np.inf) # Print everything in big matrices :)
+    tsp_dir = "../testCases/"
+    # files = os.listdir(tsp_dir)
+    # for file in tsp_file:
+    #     print("Running TSP for file: ", file)
+    #     TSP(tsp_dir+file)
+
+    tsp_file = 'a280.tsp'
+    # tsp_file = 'lin105.tsp'
+    # tsp_file = "lin318.tsp"
+    TSP(tsp_dir+tsp_file)
+
 
 main()

@@ -3,7 +3,7 @@
 # Christopher Hinkle
 # Nicolas Leocadio
 # ---------------------------
-# import numpy as np
+import numpy as np
 # import matplotlib.pyplot as plt
 # from fcmeans import FCM
 import math
@@ -41,6 +41,17 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
         prevGene = gene
     
     totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
+
+    ## TODO: ## 
+    # Testing calculating fitness score with numpy
+    # Should be faster, but algorithm is wrong.
+    # This returns the element wise differences, then need to sum the squares of EACH
+    # ndx = np.array(chromosome[1:])
+    # copy_coords = np.array(cityCoord)
+    # chromosome_coords = copy_coords[ndx]
+    # totalDist = np.sum(np.square(np.diff(chromosome_coords, axis=0)))
+
+    # print("dists: ", totalDistance, totalDist, ", diff: ", totalDistance - totalDist)
     
     return int(totalDistance)            
 
@@ -222,8 +233,8 @@ def gaForCluster(cityCoordinates, baseChromo):
         pop = children
         sortedPop = sortPopulation(pop, cityCoordinates)
         t += 1
-    print(sortedPop[0][0])
-    return(sortedPop[0][1]) # Returns the shortes tour that the GA found
+    # print("cluster tour length: ", sortedPop[0][0])
+    return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
             
     
     # TODO: Evaluate all the indidvuals in the population
