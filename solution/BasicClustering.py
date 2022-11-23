@@ -113,7 +113,6 @@ def entropy(U):
     if c == 1 or n == 0:
         return np.inf
     else:
-        # print("entropy vals: {}, {}, {}".format(1/math.log(c), 1/n, x))
         ret = -(1/math.log(c)) * 1/n * x
         return ret
     
@@ -129,16 +128,16 @@ def UFL_FCM_VAL(X):
     # S_min = 0.09
     # S_max = 0.99
     S_min = 0.01
-    S_max = 0.97
+    S_max = 0.95
     S_step = 0.01
     n = len(X) # number of cities
     
     c = 5 # This is a temp c; c will be created by UFL 
     
     m = m_min
-    while m < m_max:
+    while m <= m_max:
         S = S_min
-        while S < S_max:
+        while S <= S_max:
             c, C, U = UFL(X, S, m)
             
             # Calculate Entropy
@@ -148,20 +147,21 @@ def UFL_FCM_VAL(X):
                 print("updating best. C: ", c, ", S: ", S, ", m: ", m, ", entropy: ", h)
                 h_min = h
                 finalNumClusters = c
-                finalClusters = C
+                finalCenters = C
                 finalMemDegree = U
                 finalM = m
+                finalS = S
 
             S += S_step
         m += m_step
-    
+
     # Output:
     # Labels, Centers, Fuzzy Degree (M)
     print("Final m: ", finalM)
-    print("Final C: ", finalClusters)
-    print("Final c: ", finalNumClusters)
+    print("Final C: ", finalCenters)
+    print("Final num of clusters: ", finalNumClusters)
 
-    return finalMemDegree, finalClusters, finalM, finalNumClusters
+    return finalMemDegree, finalCenters, finalM, finalNumClusters
 
 def e_dist(a, b):
     dist = np.sqrt((b[0]-a[0])**2 + (b[1]-a[1])**2)
@@ -174,10 +174,8 @@ def UFL(X, S_min, m):
     C = np.zeros((1,2)) # Location of cluster centers
     C_norm = np.zeros((1,2)) # Location of cluster centers
     
-    # Create x,y norms
-    x_max = np.amax(X[:][0])
-    y_max = np.amax(X[:][1])
-    X_norm = X[:]/[x_max, y_max]
+    X_max = np.amax(X, axis=0)
+    X_norm = X[:]/X_max
     C[0] = X[0]
     C_norm[0] = X_norm[0]
     
@@ -195,7 +193,7 @@ def UFL(X, S_min, m):
         
             # Get centers to keep calculating thresholds 
             fcm_model, C = fcm(X, c, m, C)
-            C_norm = C[:]/[x_max, y_max]
+            C_norm = C[:]/X_max
             
     if c == 1:
         fcm_model, C = fcm(X, c, m, C)
@@ -203,21 +201,4 @@ def UFL(X, S_min, m):
     
     return c, C, U
     
-#def main():
-#    start = timeit.default_timer()
-    # Using the most basic symmetric TSP file: a280.tsp
-    # optimal length: 2579
-#    tsp_file = '../testCases/a280.tsp'
-#    nodes, X = preprocess_data_from_file(tsp_file)
-
-    # Visualize the data before & after our algorithms have run
-    
-#    finalMemDegree, finalClusters, finalM, finalNumClusters = UFL_FCM_VAL(X)
-    
-#    visualize_data(X, finalNumClusters, finalM) 
-
-#    stop = timeit.default_timer()
-#    print('Time: ', stop - start)
-
-#main()
 # %%
