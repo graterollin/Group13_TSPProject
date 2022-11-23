@@ -3,19 +3,14 @@
 # Christopher Hinkle
 # Nicolas Leocadio
 # ---------------------------
-# %% 
-from cProfile import label
+# Functions for inputting location data and creating clusters
+# ---------------------------
+# from cProfile import label
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 from fcmeans import FCM
 import math
-import timeit
-
-#Equation 2 figure 1
-def S(i,j):
-    return (1 - ((math.dist(i,j) * math.dist(i,j))/2))
-    
 
 # DATA PREPROCESSING
 def preprocess_data_from_file(filepath): 
@@ -26,14 +21,11 @@ def preprocess_data_from_file(filepath):
     length_of_file = len(content)
     
     entries = content[6:length_of_file-1]
-    #print(entries) 
-    
+
     # Remove leading and trailing characters
     for i in range(len(entries)):
         entries[i] = entries[i].strip()
         
-    #print(entries)
-    
     nodes = np.zeros(len(entries))
     x = np.zeros(len(entries))
     y = np.zeros(len(entries))
@@ -60,8 +52,6 @@ def preprocess_data_from_file(filepath):
         X.append(row)
         
     X = np.array(X) 
-    #print(X.shape)
-    #print(X)
 
     return nodes, X
     
@@ -79,7 +69,6 @@ def visualize_data(X, num_clusters, m):
         soft = optimal_model.soft_predict(X)
 
         alphas = list(map(max,soft[:]))
-        #print(alphas)
 
         # Visualize data with and without clusters
         f, axes = plt.subplots(1, 2, figsize=(11,5))
@@ -116,7 +105,6 @@ def entropy(U):
         ret = -(1/math.log(c)) * 1/n * x
         return ret
     
-    
 # Figure 2 from Paper
 def UFL_FCM_VAL(X):
     # TODO: revert steps to normal, reduced because runtime is VERY LONG
@@ -131,8 +119,6 @@ def UFL_FCM_VAL(X):
     S_max = 0.95
     S_step = 0.01
     n = len(X) # number of cities
-    
-    c = 5 # This is a temp c; c will be created by UFL 
     
     m = m_min
     while m <= m_max:
@@ -200,5 +186,3 @@ def UFL(X, S_min, m):
     U = fcm_model.soft_predict(X)
     
     return c, C, U
-    
-# %%

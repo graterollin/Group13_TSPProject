@@ -3,9 +3,9 @@
 # Christopher Hinkle
 # Nicolas Leocadio
 # ---------------------------
-import numpy as np
-import matplotlib.pyplot as plt
-from fcmeans import FCM
+# import numpy as np
+# import matplotlib.pyplot as plt
+# from fcmeans import FCM
 import math
 import random
 

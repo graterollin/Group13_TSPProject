@@ -1,5 +1,13 @@
+# Group 13 
+# Andres Graterol
+# Christopher Hinkle
+# Nicolas Leocadio
+# ---------------------------
+# Main entrypoint of TSP program/algorithm
+# ---------------------------
 from BasicClustering import *
 from genAlgo import *
+import timeit
 
 def probabilisticAssn(membership):
     numClusters = len(membership)
