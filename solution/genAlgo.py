@@ -36,24 +36,22 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     startGene = chromosome[0]
     prevGene = startGene
     
-    for gene in chromosome[1:]:
-        totalDistance += math.dist(cityCoord[prevGene], cityCoord[gene])
-        prevGene = gene
+    # for gene in chromosome[1:]:
+    #     totalDistance += math.dist(cityCoord[prevGene], cityCoord[gene])
+    #     prevGene = gene
     
-    totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
+    # totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
 
-    ## TODO: ## 
-    # Testing calculating fitness score with numpy
-    # Should be faster, but algorithm is wrong.
-    # This returns the element wise differences, then need to sum the squares of EACH
-    # ndx = np.array(chromosome[1:])
-    # copy_coords = np.array(cityCoord)
-    # chromosome_coords = copy_coords[ndx]
-    # totalDist = np.sum(np.square(np.diff(chromosome_coords, axis=0)))
+    ndx = np.array(chromosome[1:])
+    copy_coords = np.array(cityCoord)
+    chromosome_coords = copy_coords[ndx]
+    totalDist = np.sum(np.sqrt(np.sum(np.square(np.diff(chromosome_coords, axis=0)), axis=1)))
+    totalDist += np.sum(np.sqrt(np.sum(np.square(np.diff([chromosome_coords[-1],chromosome_coords[0]], axis=0)), axis=1)))
 
     # print("dists: ", totalDistance, totalDist, ", diff: ", totalDistance - totalDist)
     
-    return int(totalDistance)            
+    # return int(totalDistance)
+    return int(totalDist)
 
 def pMX(parent1, parent2): #Partially-Matched Crossover
     child1 = [None] * len(parent1)

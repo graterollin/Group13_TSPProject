@@ -68,9 +68,10 @@ def main():
     #     print("Running TSP for file: ", file)
     #     TSP(tsp_dir+file)
 
-    tsp_file = 'a280.tsp'
+    # tsp_file = 'a280.tsp'
     # tsp_file = 'lin105.tsp'
     # tsp_file = "lin318.tsp"
+    tsp_file = "att532.tsp"
     TSP(tsp_dir+tsp_file)
 
 

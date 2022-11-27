@@ -168,7 +168,7 @@ def UFL(X, S_min, m):
     for i in range(n):
         S = np.zeros(c) # Initialize S with a slot for each cluster
         for k in range(c):
-            S[k] = 1 - (e_dist(X_norm[i], C_norm[k])**2)/2
+            S[k] = 1 - (np.linalg.norm(X_norm[i] - C_norm[k])**2)/2
             
         # If this city's similarity to all clusters < S_min
         # Create a new cluster centered on current city
