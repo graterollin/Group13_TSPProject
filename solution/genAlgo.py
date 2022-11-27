@@ -19,6 +19,8 @@ def createBasechromosome(nodes,labels,targetCluster):
             
     return chromosome
 
+#-------------------------------------------------------------------------------------------------------
+
 # Initial population is created by creating s randomly 
 # shuffled chromosomes (where s = number of cities in a cluster) 
 def generateInitialPop(chromosome):
@@ -30,7 +32,9 @@ def generateInitialPop(chromosome):
         population.append(tmp)
     
     return population
-        
+
+#-------------------------------------------------------------------------------------------------------
+
 def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     totalDistance = 0
     startGene = chromosome[0]
@@ -52,6 +56,8 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     
     # return int(totalDistance)
     return int(totalDist)
+
+#-------------------------------------------------------------------------------------------------------
 
 def pMX(parent1, parent2): #Partially-Matched Crossover
     child1 = [None] * len(parent1)
@@ -105,6 +111,8 @@ def pMX(parent1, parent2): #Partially-Matched Crossover
     
     return child1, child2
 
+#-------------------------------------------------------------------------------------------------------
+
 def swapMutation(chromosome): #swap mutation function
     lengthOfChromo = len(chromosome)
     
@@ -121,9 +129,13 @@ def swapMutation(chromosome): #swap mutation function
         A = num2
         
     chromosome[A], chromosome[B] = chromosome[B], chromosome[A]
-    
+
+#-------------------------------------------------------------------------------------------------------
+
 def sortFn(item):
     return item[0]
+
+#-------------------------------------------------------------------------------------------------------
 
 def sortPopulation(pop, cityCoord):
     
@@ -137,6 +149,8 @@ def sortPopulation(pop, cityCoord):
     sortedPop.sort(key=sortFn)
 
     return sortedPop
+
+#-------------------------------------------------------------------------------------------------------
 
 def tournamentSelection(population, cityCoord, l_sorted):
     # Number of cities in the population/population size
@@ -175,7 +189,9 @@ def tournamentSelection(population, cityCoord, l_sorted):
         #j += 2
 
     return tournamentWinners
-        
+
+#-------------------------------------------------------------------------------------------------------
+
 def condition1(sortedPop):
     N = len(sortedPop)
     bestDist = sortedPop[0][0]
@@ -195,6 +211,8 @@ def condition1(sortedPop):
         return True
     else:
         return False
+
+#-------------------------------------------------------------------------------------------------------
 
 def gaForCluster(cityCoordinates, baseChromo):
     prob_cross = .8
@@ -262,7 +280,8 @@ def gaForCluster(cityCoordinates, baseChromo):
     
 
     return pop
-    
+
+#-------------------------------------------------------------------------------------------------------
 
 # # TODO: Write logic to always have # of pop = # of tournament winners
 # def main():

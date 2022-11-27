@@ -54,7 +54,8 @@ def preprocess_data_from_file(filepath):
     X = np.array(X) 
 
     return nodes, X
-    
+
+#-------------------------------------------------------------------------------------------------------
 
 # DATA VISUALIZATION 
 def visualize_data(X, num_clusters, m):
@@ -78,16 +79,16 @@ def visualize_data(X, num_clusters, m):
         plt.show()
 
         return None
-        
-         
+
 def fcm(X, num_clusters, m, centers=0):
         my_model = FCM(cluster_centers=centers, n_clusters=num_clusters, m=m)
         my_model.fit(X)
         centers = my_model.centers
 
         return my_model, centers
-    
-    
+
+#-------------------------------------------------------------------------------------------------------
+
 # H(U) Function from figure 2
 def entropy(U):
     c = len(U[0]) # number of clusters
@@ -105,6 +106,8 @@ def entropy(U):
         ret = -(1/math.log(c)) * 1/n * x
         return ret
     
+#-------------------------------------------------------------------------------------------------------
+
 # Figure 2 from Paper
 def UFL_FCM_VAL(X):
     # TODO: revert steps to normal, reduced because runtime is VERY LONG
@@ -118,7 +121,7 @@ def UFL_FCM_VAL(X):
     S_min = 0.01
     S_max = 0.95
     S_step = 0.01
-    n = len(X) # number of cities
+    # n = len(X) # number of cities
     
     m = m_min
     while m <= m_max:
@@ -136,7 +139,7 @@ def UFL_FCM_VAL(X):
                 finalCenters = C
                 finalMemDegree = U
                 finalM = m
-                finalS = S
+                # finalS = S
 
             S += S_step
         m += m_step
@@ -149,9 +152,7 @@ def UFL_FCM_VAL(X):
 
     return finalMemDegree, finalCenters, finalM, finalNumClusters
 
-def e_dist(a, b):
-    dist = np.sqrt((b[0]-a[0])**2 + (b[1]-a[1])**2)
-    return dist
+#-------------------------------------------------------------------------------------------------------
 
 def UFL(X, S_min, m):
     n = len(X) # Number of cities

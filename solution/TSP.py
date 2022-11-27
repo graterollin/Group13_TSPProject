@@ -20,6 +20,8 @@ def probabilisticAssn(membership):
         if rand < x:
             return m
 
+#-------------------------------------------------------------------------------------------------------
+
 def createClusterMembership(membership, numClusters):
     citiesPerCluster = [[] for _ in range(numClusters)]
 
@@ -28,6 +30,8 @@ def createClusterMembership(membership, numClusters):
         citiesPerCluster[m].append(i)
 
     return citiesPerCluster
+
+#-------------------------------------------------------------------------------------------------------
 
 def TSP(tsp_file):
     start = timeit.default_timer()
@@ -60,6 +64,8 @@ def TSP(tsp_file):
     print("File: ", tsp_file, ", Tour length: ", totalDistance, ", sub tours: ", bestDistances, ", Time: ", stop - start)
     print(bestChromosomes)
 
+#-------------------------------------------------------------------------------------------------------
+
 def main():
     np.set_printoptions(threshold=np.inf) # Print everything in big matrices :)
     tsp_dir = "../testCases/"
@@ -74,5 +80,6 @@ def main():
     tsp_file = "att532.tsp"
     TSP(tsp_dir+tsp_file)
 
+#-------------------------------------------------------------------------------------------------------
 
 main()
