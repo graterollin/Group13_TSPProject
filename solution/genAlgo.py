@@ -132,6 +132,27 @@ def swapMutation(chromosome): #swap mutation function
 
 #-------------------------------------------------------------------------------------------------------
 
+def inverseMutation(chromosome):
+
+    num1 = random.randint(0,len(chromosome) - 1)
+    num2 = num1
+    while num2 == num1: #This while loop gurantees that the two random number choosen will not be the same
+        num2 = random.randint(0,len(chromosome) - 1)
+    
+    if num1 < num2:
+        A = num1
+        B = num2
+    else:
+        B = num1
+        A = num2
+    
+    B += 1
+    print(A, B)
+
+    chromosome[A:B] = chromosome[A:B][::-1]
+
+#-------------------------------------------------------------------------------------------------------
+
 def sortFn(item):
     return item[0]
 
@@ -217,7 +238,7 @@ def condition1(sortedPop):
 def gaForCluster(cityCoordinates, baseChromo):
     prob_cross = .8
     prob_mut = .02
-    t_max = 1000
+    t_max = 100
     t = 0
     
     pop = generateInitialPop(baseChromo)   #randomly generate population P(0)
@@ -251,32 +272,47 @@ def gaForCluster(cityCoordinates, baseChromo):
         t += 1
     # print("cluster tour length: ", sortedPop[0][0])
     return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
-            
+
+
+def gaForClusterCenters(clusterCenters):
+    prob_cross = .8
+    prob_mut = .02
+    t_max = 100
+    t = 0
     
-    # TODO: Evaluate all the indidvuals in the population
+    pop = heuristicInitialization(clusterCenters)   #randomly generate population P(0) figure 5
+
+    sortedPop = sortPopulation(pop, clusterCenters)
     
-    # TODO: code condition1
-    
-    # TODO: go through this psuedo code
-    # while condition1() and t < t_max:
-    #     nextPop or maybe parentpairs = tournamentSelection()
-    #     children = []
+    while condition1(sortedPop) and t < t_max:
+        parents = tournamentSelection(pop, clusterCenters, sortedPop)
+        children = []
         
-    #     for parent1, parent 2 in parentpairs:
-    #         if random.random() < prob_cross:
-    #             child1, child2 = pMX(parent1,parent2)
-    #         else:
-    #             child1, child2 = parent1, parent2
+        for p1, p2 in parents:
+            if random.random() < prob_cross:
+                child1, child2 = pMX(p1, p2)
+            else:
+                child1, child2 = p1.copy() , p2.copy()
             
-    #         if random.random() < prob_mut:
-    #             child1 = swapMutation(child1)
-    #         if random.random() < prob_mut:
-    #             child2 = swapMutation(child2)
+            if random.random() < prob_mut:
+                inverseMutation(child1)
+                inverseMutation(child2)
                 
-    #         children.append(child1)
-    #         children.append(child2)
+            children.append(child1)
+            children.append(child2)
+        
+        if len(children) > len(pop): # If we have too many children get rid of the last one
+            children.pop()
             
-    #     pop = children
+        elif len(children) < len(pop): #If we are missing a child we choose random chromosome to live on
+            children.append(random.choice(pop))
+        
+        pop = children
+        sortedPop = sortPopulation(pop, clusterCenters)
+        t += 1
+    # print("cluster tour length: ", sortedPop[0][0])
+    return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
+   
 
 #-------------------------------------------------------------------------------------------------------
 
@@ -331,8 +367,6 @@ def findClosestEdge(cluster1, cluster2, city_coords):
 
 #-------------------------------------------------------------------------------------------------------
 
-
-# # TODO: Write logic to always have # of pop = # of tournament winners
 # def main():
 #     # Using the most basic symmetric TSP file: a280.tsp
 #     # optimal length: 2579
