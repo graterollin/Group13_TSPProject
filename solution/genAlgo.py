@@ -373,8 +373,58 @@ def gaForClusterCenters(clusterCenters):
         t += 1
     # print("cluster tour length: ", sortedPop[0][0])
     return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
-    
+   
+
+#-------------------------------------------------------------------------------------------------------
+
+# return A1,A2 and B1,B2 (connect a1 to a2, b1 to b2)
+# def connectClusters(cluster_tour, centers, sub_tours):
+def findClosestEdge(cluster1, cluster2, city_coords):
+    min_dist = math.inf
+    A = [0,0]
+    B = [0,0]
+    flip = 0
+    for i, city_a1 in enumerate(cluster1):
+        if i == len(cluster1)-1:
+            k = -1
+        else:
+            k = i+1
+        city_b1 = cluster1[k]
             
+        for j, city_a2 in enumerate(cluster2):
+            if j == len(cluster2)-1:
+                l = -1
+            else:
+                l = i+1
+            city_b2 = cluster2[l]
+            
+            dist_forward = math.dist(city_coords[city_a1], city_coords[city_a2]) + math.dist(city_coords[city_b1], city_coords[city_b2])
+            dist_backward = math.dist(city_coords[city_a1], city_coords[city_b2]) + math.dist(city_coords[city_b1], city_coords[city_a2])
+            cur_dist = math.dist(city_coords[city_a1], city_coords[city_b1]) + math.dist(city_coords[city_a2], city_coords[city_b2])
+            dist_forward -= cur_dist
+            dist_backward -= cur_dist
+            
+            if dist_forward < dist_backward:
+                if dist_forward < min_dist:
+                    min_dist = dist_forward
+                    # A = [i, j]
+                    # B = [k, l]
+                    A1 = i
+                    A2 = j
+                    B1 = k
+                    B2 = l
+            else:
+                if dist_backward < min_dist:
+                    min_dist = dist_backward
+                    # A = [i, l]
+                    # B = [k, j]
+                    A1 = i
+                    A2 = l
+                    B1 = k
+                    B2 = j
+                    flip = 1
+
+    return A1, A2, B1, B2, flip
 
 #-------------------------------------------------------------------------------------------------------
 
