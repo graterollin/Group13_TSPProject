@@ -274,10 +274,6 @@ def gaForCluster(cityCoordinates, baseChromo):
     return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
 
 
-def findClosetEdges(tour1, tour2):
-
-    return
-
 def needRotate(X,a,b):
     lastIndex = len(X) - 1
     if a == 0 and b == lastIndex or b == 0 and a == lastIndex:
@@ -287,8 +283,8 @@ def needRotate(X,a,b):
 
 
 
-def mergeTour(finalTour, nextTour, A1, B1, A2, B2):
-
+def mergeTour(finalTour, nextTour, city_coords):
+    A1, A2, B1, B2 = findClosestEdge(finalTour,nextTour,city_coords)
     cityA1 = finalTour[A1]
     cityA2 = nextTour[A2]
 
@@ -330,7 +326,7 @@ def connectClusters(clusterTour, sub_tours, cityCoordinates):
     finalTour = sub_tours[0]
     for i in range(1,len(clusterTour)):
         nextTour = sub_tours[i]
-        mergeTour(finalTour, nextTour)
+        mergeTour(finalTour, nextTour,cityCoordinates)
 
     return finalTour
         
