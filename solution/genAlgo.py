@@ -379,9 +379,9 @@ def mergeTour(finalTour, nextTour, city_coords):
         
     if needRotate(nextTour, A2, B2):
         if A2 < B2:
-           ind = A2
+            ind = A2
         else:
-          ind = B2
+            ind = B2
     
         rollamount = len(nextTour) - 1 - ind
         print('roll Amount', rollamount)
