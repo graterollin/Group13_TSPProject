@@ -401,8 +401,8 @@ def mergeTour(finalTour, nextTour, city_coords):
 
 
 def connectClusters(clusterTour, sub_tours, cityCoordinates):
-    finalTour = sub_tours[0]
-    for i in range(1,len(clusterTour)):
+    finalTour = sub_tours[clusterTour[0]]
+    for i in clusterTour[1:]:
         nextTour = sub_tours[i]
         mergeTour(finalTour, nextTour,cityCoordinates)
 
