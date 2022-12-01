@@ -59,6 +59,29 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
 
 #-------------------------------------------------------------------------------------------------------
 
+def getFitnessScoreCenters(chromosome, CenterCoords): #returns total distance of the tour
+    totalDistance = 0
+    startGene = chromosome[0]
+    prevGene = startGene
+    
+    # for gene in chromosome[1:]:
+    #     totalDistance += math.dist(cityCoord[prevGene], cityCoord[gene])
+    #     prevGene = gene
+    
+    # totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
+
+    ndx = np.array(chromosome[1:])
+    copy_coords = np.array(CenterCoords)
+    chromosome_coords = copy_coords[ndx]
+    totalDist = np.sum(np.sqrt(np.sum(np.square(np.diff(chromosome_coords, axis=0)), axis=1)))
+
+    # print("dists: ", totalDistance, totalDist, ", diff: ", totalDistance - totalDist)
+    
+    # return int(totalDistance)
+    return int(totalDist)
+
+#-------------------------------------------------------------------------------------------------------
+
 def pMX(parent1, parent2): #Partially-Matched Crossover
     child1 = [None] * len(parent1)
     child2 = [None] * len(parent2)
@@ -173,6 +196,21 @@ def sortPopulation(pop, cityCoord):
 
 #-------------------------------------------------------------------------------------------------------
 
+def sortPopulationCenters(pop, cityCoord):
+    
+    sortedPop = []
+    # Call the fitness function for each chromosome in the population
+    for city in pop:
+        distance = getFitnessScoreCenters(city, cityCoord)
+        sortedPop.append([distance, city])
+
+    #sorted(l_key, l_key[0])
+    sortedPop.sort(key=sortFn)
+
+    return sortedPop
+
+#-------------------------------------------------------------------------------------------------------
+
 def tournamentSelection(population, cityCoord, l_sorted):
     # Number of cities in the population/population size
     N = len(population)
@@ -197,6 +235,46 @@ def tournamentSelection(population, cityCoord, l_sorted):
 
             C2 = random.choice(pop)
             if (getFitnessScore(C1, cityCoord) > getFitnessScore(C2, cityCoord)):
+                C1 = C2
+            
+            m += 1
+
+        pop.remove(C1)
+        parentPair = [C1,l_sorted[l][1]]
+        tournamentWinners.append(parentPair)
+        
+        l += 2
+        k += 1
+        #j += 2
+
+    return tournamentWinners
+
+#-------------------------------------------------------------------------------------------------------
+
+def tournamentSelectionCenters(population, cityCoord, l_sorted):
+    # Number of cities in the population/population size
+    N = len(population)
+    # print("Size of the population: ", N)
+
+    # Indices that map to individual (chromosome in a population)
+    pop = population.copy()
+
+    tournamentWinners = []
+
+    k = 0
+    l = 0
+    #j = 0
+    while (l < N):
+        C1 = random.choice(pop)
+        
+        m = 1
+        while (m < k):
+            # Condition to break out of loop if we are in an invalid index range
+            #if ((j+m) >= N):
+            #    break
+
+            C2 = random.choice(pop)
+            if (getFitnessScoreCenters(C1, cityCoord) > getFitnessScoreCenters(C2, cityCoord)):
                 C1 = C2
             
             m += 1
@@ -339,10 +417,10 @@ def gaForClusterCenters(clusterCenters):
     
     pop = heuristicInitialization(clusterCenters)   #randomly generate population P(0) figure 5
 
-    sortedPop = sortPopulation(pop, clusterCenters)
+    sortedPop = sortPopulationCenters(pop, clusterCenters)
     
     while condition1(sortedPop) and t < t_max:
-        parents = tournamentSelection(pop, clusterCenters, sortedPop)
+        parents = tournamentSelectionCenters(pop, clusterCenters, sortedPop)
         children = []
         
         for p1, p2 in parents:
@@ -365,7 +443,7 @@ def gaForClusterCenters(clusterCenters):
             children.append(random.choice(pop))
         
         pop = children
-        sortedPop = sortPopulation(pop, clusterCenters)
+        sortedPop = sortPopulationCenters(pop, clusterCenters)
         t += 1
     # print("cluster tour length: ", sortedPop[0][0])
     return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
