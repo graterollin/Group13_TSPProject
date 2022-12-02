@@ -32,6 +32,57 @@ def createClusterMembership(membership, numClusters):
 
     return citiesPerCluster
 
+
+
+#-------------------------------------------------------------------------------------------------------
+
+def generateCenterpop(centers):
+
+    centersPop = []
+    centersindexs = [i for i in range(len(centers))]
+    for i in range(len(centers)):
+        clusterLeft = centersindexs.copy()
+        clusterLeft.remove(i)
+        chromo = [i]
+        appendClosest(chromo, centers, clusterLeft)
+        centersPop.append(chromo)
+    
+    return centersPop
+
+
+#-------------------------------------------------------------------------------------------------------
+
+def appendClosest(chromosome, clustersCoord, clustersLeft):
+    rightAppend = chromosome[-1]
+    leftAppend = chromosome[0]
+    minDist = float('inf')
+    minIndex = 0
+    for i in clustersLeft:
+        dist = math.dist(clustersCoord[i], clustersCoord[rightAppend])
+        if dist < minDist:
+            minDist = dist
+            minIndex = i
+    chromosome.append(minIndex)
+    clustersLeft.remove(minIndex)
+
+    if len(clustersLeft) == 0:
+        return chromosome
+
+    minDist = float('inf')
+    minIndex = 0
+    for i in clustersLeft:
+        dist = math.dist(clustersCoord[i], clustersCoord[leftAppend])
+        if dist < minDist:
+            minDist = dist
+            minIndex = i
+
+    chromosome.insert(0, minIndex)
+    clustersLeft.remove(minIndex)
+    if len(clustersLeft) == 0:
+        return chromosome
+    
+    return appendClosest(chromosome, clustersCoord, clustersLeft)
+
 #-------------------------------------------------------------------------------------------------------
 
 def TSP(tsp_file):
@@ -193,6 +244,10 @@ def centersPopulation(centers, citiesPerCluster, cityCoordinates):
 
 #-------------------------------------------------------------------------------------------------------
 
+
+
+#-------------------------------------------------------------------------------------------------------
+
 def main():
     np.set_printoptions(threshold=np.inf) # Print everything in big matrices :)
     tsp_dir = "../testCases/"
@@ -205,7 +260,13 @@ def main():
     # tsp_file = 'lin105.tsp'
     # tsp_file = "lin318.tsp"
     #tsp_file = "att532.tsp"
-    TSP(tsp_dir+tsp_file)
+    # TSP(tsp_dir+tsp_file)
+    centers = [(0,0), (1,1), (2,2), (3,3), (4,4)]
+    chromo = [2]
+    clustersleft = [0,1,3,4]
+    pop = generateCenterpop(centers)
+
+    print("Population: ", pop)
 
 #-------------------------------------------------------------------------------------------------------
 
