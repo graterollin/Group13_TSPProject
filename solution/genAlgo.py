@@ -65,12 +65,10 @@ def getFitnessScoreCenters(chromosome, CenterCoords): #returns total distance of
     prevGene = startGene
     
     # for gene in chromosome[1:]:
-    #     totalDistance += math.dist(cityCoord[prevGene], cityCoord[gene])
+    #     totalDistance += math.dist(CenterCoords[prevGene], CenterCoords[gene])
     #     prevGene = gene
-    
-    # totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
 
-    ndx = np.array(chromosome[1:])
+    ndx = np.array(chromosome)
     copy_coords = np.array(CenterCoords)
     chromosome_coords = copy_coords[ndx]
     totalDist = np.sum(np.sqrt(np.sum(np.square(np.diff(chromosome_coords, axis=0)), axis=1)))
@@ -533,13 +531,3 @@ def findClosestEdge(cluster1, cluster2, city_coords):
     
 #main()
 
-if __name__ == "__main__":
-    tour1 = [5,2,11,8, 13,15,16,18]
-    tour2 = [1,12,12,12,21,3]
-    A1 = 2
-    A2 = 3
-
-    B1 = 5
-    B2 = 1
-
-    mergeTour(tour1,tour2,A1,B1,A2,B2)
