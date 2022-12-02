@@ -93,7 +93,7 @@ def TSP(tsp_file):
     nodes -=1
     
     finalMemDegree, finalCenters, finalM, finalNumClusters = UFL_FCM_VAL(cityCoordinates)
-    
+
     # Visualize the data before & after our algorithms have run
     #visualize_data(cityCoordinates, finalNumClusters, finalM) 
     
@@ -114,7 +114,7 @@ def TSP(tsp_file):
 
     stop = timeit.default_timer()
     print("File: ", tsp_file, ", Tour length: ", totalDistance, ", sub tours: ", bestDistances, ", Time: ", stop - start)
-    print(bestChromosomes)
+    #print(bestChromosomes)
 
     centerPop = generateCenterpop(finalCenters)
     clusterRoute = gaForClusterCenters(finalCenters, centerPop)
@@ -125,18 +125,18 @@ def TSP(tsp_file):
     print('Final Tour length:',getFitnessScore(finalTour, cityCoordinates))
 
 
-    # # centersPopMatrix = centersPopulation(finalCenters, citiesPerCluster, cityCoordinates)
-    # print("Shape of the final population matrix: ", np.array(centersPopMatrix).shape)
-    # print(centersPopMatrix)
-
+    centersPopMatrix, centersNumberMatrix = centersPopulation(finalCenters, citiesPerCluster, cityCoordinates)
+    # #print("Shape of the final population matrix: ", np.array(centersPopMatrix).shape)
+    # #print(centersPopMatrix)
+    print("Shape of the final center number matrix: ", np.array(centersNumberMatrix).shape)
+    print(centersNumberMatrix)
 #-------------------------------------------------------------------------------------------------------
 
-# TODO: Ensure that this generalizes for multiple cluster sizes
 def centersPopulation(centers, citiesPerCluster, cityCoordinates):
-
-    #numberOfCenters = len(centers)
-    centersPopulationMatrix = []
     
+    centersPopulationMatrix = []
+    centerNumbersMatrix = []
+
     centersPickList = (centers.tolist()).copy()
     iteration = 0
     while(len(centersPopulationMatrix) < len(centers)):
@@ -144,16 +144,14 @@ def centersPopulation(centers, citiesPerCluster, cityCoordinates):
         centersHold = centersList.copy()
 
         centersIndividual = []
-        print("Size of centers pick: ", len(centersPickList), "for iteration: ", iteration)
+        centersNumber = []
+
         # Pick a random c0 from the list of centers
-        #centerPick = random.choice(centersList)
         centerPick = random.choice(centersPickList)
         centersPickList.remove(centerPick)
-        #centersPickList = [c for c in centersPickList if c != centerPick]
-        print("We pick center:", centerPick)
+
         # Pick a random point from this cluster 
         c0 = random.choice(cityCoordinates[citiesPerCluster[centersList.index(centerPick)]])
-        print("Point we pick: ", c0)
         # Remove the first center choice from the list of centers 
         centersList.remove(centerPick)
 
@@ -161,49 +159,49 @@ def centersPopulation(centers, citiesPerCluster, cityCoordinates):
         distances = []
         for d in range(len(centersList)):
             distance = math.dist(c0, centersList[d])
-            print("Distance between: ", c0, "and: ", centersList[d], "is: ", distance)
             distances.append(distance)
 
-        print(distances)
         # Keep track of indices to tie back to the centers 
         sortIndices = np.argsort(distances)
         distances = distances.sort()
-        print("Sort for iteration: ", iteration)
-        print(sortIndices)
-        print("Initial CentersHold:", centersHold)
 
         c0 = c0.tolist()
         centersIndividual.append(c0)
-        print("current view of the individual:", centersIndividual)
+
         if (len(centersIndividual) == len(centers)):
             centersPopulationMatrix.append(centersIndividual)
+            # Replace the randomized cluster with the orginial pick 
+            centersIndividual[centersIndividual.index(c0)] = centerPick
+            for i, coord in enumerate(centersIndividual):
+                centersNumber.append(np.where(centers == coord)[0][0])
+            
+            centerNumbersMatrix.append(centersNumber)
             continue
         centersHold.remove(centerPick)
-        print("current view of the centers left in centers hold: ", centersHold)
 
         # Insert the closest center (c1) to c0
         centersIndividual.append(centersList[sortIndices[0]])
-        print("current view of the individual:", centersIndividual)
         if (len(centersIndividual) == len(centers)):
             centersPopulationMatrix.append(centersIndividual)
+            centersIndividual[centersIndividual.index(c0)] = centerPick
+            for i, coord in enumerate(centersIndividual):
+                centersNumber.append(np.where(centers == coord)[0][0])
+
+            centerNumbersMatrix.append(centersNumber)
             continue
-        print("Center to add to the individual and remove from centersHold", centersList[sortIndices[0]])
         centersHold = [c for c in centersHold if c != centersList[sortIndices[0]]]
-        #centersHold.remove(centers[sortIndices[0]])
-        #del centersHold[sortIndices[0]]
-        print("current view of the centers left in centers hold: ", centersHold)
 
         # Insert the second closest center (c2) before c0
         centersIndividual.insert(0, centersList[sortIndices[1]])
-        print("current view of the individual:", centersIndividual)
         if (len(centersIndividual) == len(centers)):
             centersPopulationMatrix.append(centersIndividual)
+            centersIndividual[centersIndividual.index(c0)] = centerPick
+            for i, coord in enumerate(centersIndividual):
+                centersNumber.append(np.where(centers == coord)[0][0])
+                
+            centerNumbersMatrix.append(centersNumber)
             continue
-        print("Center to add to the individual and remove from centersHold", centersList[sortIndices[1]])
         centersHold = [c for c in centersHold if c != centersList[sortIndices[1]]]
-        #centersHold.remove(centers[sortIndices[1]])
-        #del centersHold[sortIndices[1]]
-        print("current view of the centers left in centers hold: ", centersHold)
 
         # Save the centers left after the initial steps
         centersLeft = centersHold.copy()
@@ -215,41 +213,39 @@ def centersPopulation(centers, citiesPerCluster, cityCoordinates):
 
             centerToCompare = centersIndividual[-1]
 
-            #centersLeft.remove(centersHold[-1])
-            print("Centers left:", centersLeft)
             # Now we compute the distances from the last element
             for d in range(len(centersLeft)):
                 distance = math.dist(centerToCompare, centersLeft[d])
-                print("Distance between ", centerToCompare, "and: ", centersLeft[d], "is: ", distance)
                 distances.append(distance)
 
-            print(distances)
             sortIndices = np.argsort(distances)
             distances = distances.sort()
-            print("SUB Distance shape, distances, and sort for iteration: ", iteration)
-            print(sortIndices)
 
             centersIndividual.append(centersLeft[sortIndices[0]])
-            print("current view of the individual:", centersIndividual)
             if (len(centersIndividual) == len(centers)):
                 centersPopulationMatrix.append(centersIndividual)
+                centersIndividual[centersIndividual.index(c0)] = centerPick
+                for i, coord in enumerate(centersIndividual):
+                    centersNumber.append(np.where(centers == coord)[0][0])
+                
+                centerNumbersMatrix.append(centersNumber)
                 break
-            #centersHold.remove(centers[sortIndices[0]])
             centersHold = [c for c in centersHold if c != centersLeft[sortIndices[0]]]  
-            print("current view of the centers left in centers hold: ", centersHold)
 
             centersIndividual.insert(0, centersLeft[sortIndices[1]])
-            print("current view of the individual:", centersIndividual)
             if (len(centersIndividual) == len(centers)):
                 centersPopulationMatrix.append(centersIndividual)
+                centersIndividual[centersIndividual.index(c0)] = centerPick
+                for i, coord in enumerate(centersIndividual):
+                    centersNumber.append(np.where(centers == coord)[0][0])
+
+                centerNumbersMatrix.append(centersNumber)
                 break
-            #centersHold.remove(centers[sortIndices[1]])
             centersHold = [c for c in centersHold if c != centersLeft[sortIndices[1]]]
-            print("current view of the centers left in centers hold: ", centersHold)
 
         iteration += 1
 
-    return centersPopulationMatrix
+    return centersPopulationMatrix, centerNumbersMatrix
 
 #-------------------------------------------------------------------------------------------------------
 
