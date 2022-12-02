@@ -261,12 +261,15 @@ def main():
     # tsp_file = "lin318.tsp"
     #tsp_file = "att532.tsp"
     # TSP(tsp_dir+tsp_file)
-    centers = [(0,0), (1,1), (2,2), (3,3), (4,4)]
+    centers = [(0,0), (8,2), (2,5), (0,3), (6,4)]
     chromo = [2]
     clustersleft = [0,1,3,4]
     pop = generateCenterpop(centers)
-
     print("Population: ", pop)
+    clusterTour = gaForClusterCenters(centers, pop)
+    print("Cluster Tour: ", clusterTour)
+
+    
 
 #-------------------------------------------------------------------------------------------------------
 

@@ -409,13 +409,11 @@ def connectClusters(clusterTour, sub_tours, cityCoordinates):
     return finalTour
         
 
-def gaForClusterCenters(clusterCenters):
+def gaForClusterCenters(clusterCenters, pop):
     prob_cross = .8
     prob_mut = .02
     t_max = 100
     t = 0
-    
-    pop = heuristicInitialization(clusterCenters)   #randomly generate population P(0) figure 5
 
     sortedPop = sortPopulationCenters(pop, clusterCenters)
     
