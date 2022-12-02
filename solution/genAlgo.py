@@ -349,6 +349,7 @@ def gaForCluster(cityCoordinates, baseChromo):
     # print("cluster tour length: ", sortedPop[0][0])
     return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
 
+#-------------------------------------------------------------------------------------------------------
 
 def needRotate(X,a,b):
     lastIndex = len(X) - 1
@@ -357,7 +358,7 @@ def needRotate(X,a,b):
     else:
         return True
 
-
+#-------------------------------------------------------------------------------------------------------
 
 def mergeTour(finalTour, nextTour, city_coords):
     A1, A2, B1, B2 = findClosestEdge(finalTour,nextTour,city_coords)
@@ -370,10 +371,7 @@ def mergeTour(finalTour, nextTour, city_coords):
         else:
             ind = B1
         rollamount = len(finalTour) - 1 - ind
-        print('roll Amount', rollamount)
         finalTour = list(np.roll(finalTour,rollamount))
-
-    print ('finaltour after rotate',finalTour)
         
     if needRotate(nextTour, A2, B2):
         if A2 < B2:
@@ -382,10 +380,7 @@ def mergeTour(finalTour, nextTour, city_coords):
             ind = B2
     
         rollamount = len(nextTour) - 1 - ind
-        print('roll Amount', rollamount)
         nextTour = list(np.roll(nextTour,rollamount))
-
-    print ('nexttour after rotate',nextTour)
 
     if finalTour[-1] == cityA1 and nextTour[0] == cityA2 or finalTour[0] == cityA1 and nextTour[-1] == cityA2:
         finalTour = finalTour + nextTour
@@ -393,19 +388,19 @@ def mergeTour(finalTour, nextTour, city_coords):
         nextTour.reverse()
         finalTour = finalTour + nextTour
     
-    print(finalTour)
+    return finalTour
 
-
-
+#-------------------------------------------------------------------------------------------------------
 
 def connectClusters(clusterTour, sub_tours, cityCoordinates):
     finalTour = sub_tours[clusterTour[0]]
     for i in clusterTour[1:]:
         nextTour = sub_tours[i]
-        mergeTour(finalTour, nextTour,cityCoordinates)
+        finalTour = mergeTour(finalTour, nextTour, cityCoordinates)
 
     return finalTour
         
+#-------------------------------------------------------------------------------------------------------
 
 def gaForClusterCenters(clusterCenters, pop):
     prob_cross = .8
@@ -442,9 +437,8 @@ def gaForClusterCenters(clusterCenters, pop):
         sortedPop = sortPopulationCenters(pop, clusterCenters)
         t += 1
     # print("cluster tour length: ", sortedPop[0][0])
-    return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
+    return sortedPop[0][1] # Returns the shortes tour that the GA found
    
-
 #-------------------------------------------------------------------------------------------------------
 
 # return A1,A2 and B1,B2 (connect a1 to a2, b1 to b2)
@@ -465,7 +459,7 @@ def findClosestEdge(cluster1, cluster2, city_coords):
             if j == len(cluster2)-1:
                 l = -1
             else:
-                l = i+1
+                l = j+1
             city_b2 = cluster2[l]
             
             dist_forward = math.dist(city_coords[city_a1], city_coords[city_a2]) + math.dist(city_coords[city_b1], city_coords[city_b2])
@@ -494,7 +488,7 @@ def findClosestEdge(cluster1, cluster2, city_coords):
                     B2 = j
                     flip = 1
 
-    return A1, A2, B1, B2, flip
+    return A1, A2, B1, B2
 
 #-------------------------------------------------------------------------------------------------------
 
