@@ -46,7 +46,7 @@ def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
     
     # totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
 
-    ndx = np.array(chromosome[1:])
+    ndx = np.array(chromosome)
     copy_coords = np.array(cityCoord)
     chromosome_coords = copy_coords[ndx]
     totalDist = np.sum(np.sqrt(np.sum(np.square(np.diff(chromosome_coords, axis=0)), axis=1)))

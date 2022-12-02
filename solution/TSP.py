@@ -268,6 +268,9 @@ def main():
     print("Population: ", pop)
     clusterTour = gaForClusterCenters(centers, pop)
     print("Cluster Tour: ", clusterTour)
+    print(getFitnessScoreCenters(clusterTour[1], centers))
+    print(getFitnessScore(clusterTour[1], centers))
+
 
     
 
