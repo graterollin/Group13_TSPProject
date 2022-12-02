@@ -119,7 +119,7 @@ def UFL_FCM_VAL(X):
     # S_min = 0.09
     # S_max = 0.99
     S_min = 0.01
-    S_max = 0.95
+    S_max = 0.99
     S_step = 0.01
     # n = len(X) # number of cities
     

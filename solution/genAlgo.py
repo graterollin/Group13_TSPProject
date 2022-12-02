@@ -6,6 +6,7 @@
 import numpy as np
 # import matplotlib.pyplot as plt
 # from fcmeans import FCM
+import matplotlib.pyplot as plt
 import math
 import random
 
@@ -323,7 +324,13 @@ def gaForCluster(cityCoordinates, baseChromo):
     while condition1(sortedPop) and t < t_max:
         parents = tournamentSelection(pop, cityCoordinates, sortedPop)
         children = []
-        
+        # bestRoute = sortedPop[0][1]
+        # x = [cityCoordinates[point][0] for point in bestRoute]
+        # y = [cityCoordinates[point][1] for point in bestRoute]
+        # x = x + [cityCoordinates[bestRoute[0]][0]]
+        # y = y + [cityCoordinates[bestRoute[0]][1]]
+        # plt.plot(x, y, '-o')
+        # plt.show()
         for p1, p2 in parents:
             if random.random() < prob_cross:
                 child1, child2 = pMX(p1, p2)

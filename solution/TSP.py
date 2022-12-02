@@ -116,20 +116,30 @@ def TSP(tsp_file):
     print("File: ", tsp_file, ", Tour length: ", totalDistance, ", sub tours: ", bestDistances, ", Time: ", stop - start)
     #print(bestChromosomes)
 
-    centerPop = generateCenterpop(finalCenters)
-    clusterRoute = gaForClusterCenters(finalCenters, centerPop)
+    for route in bestChromosomes:
+        x = [cityCoordinates[point][0] for point in route]
+        y = [cityCoordinates[point][1] for point in route]
+        x = x + [cityCoordinates[route[0]][0]]
+        y = y + [cityCoordinates[route[0]][1]]
+        plt.plot(x, y, '-o')
+
+    plt.show()
+    centerpop = generateCenterpop(finalCenters)
+    centersPopMatrix, centersNumberMatrix = centersPopulation(finalCenters, citiesPerCluster, cityCoordinates)
+    print(centersNumberMatrix)
+    clusterRoute = gaForClusterCenters(finalCenters, centerpop)
     print(clusterRoute)
     finalTour = connectClusters(clusterRoute,bestChromosomes, cityCoordinates)
+    x = [cityCoordinates[point][0] for point in finalTour]
+    y = [cityCoordinates[point][1] for point in finalTour]
+    x = x + [cityCoordinates[finalTour[0]][0]]
+    y = y + [cityCoordinates[finalTour[0]][1]]
+    plt.plot(x, y, '-o')
+    plt.show()
     print('finalTour',finalTour)
 
     print('Final Tour length:',getFitnessScore(finalTour, cityCoordinates))
 
-
-    centersPopMatrix, centersNumberMatrix = centersPopulation(finalCenters, citiesPerCluster, cityCoordinates)
-    # #print("Shape of the final population matrix: ", np.array(centersPopMatrix).shape)
-    # #print(centersPopMatrix)
-    print("Shape of the final center number matrix: ", np.array(centersNumberMatrix).shape)
-    print(centersNumberMatrix)
 #-------------------------------------------------------------------------------------------------------
 
 def centersPopulation(centers, citiesPerCluster, cityCoordinates):
