@@ -4,9 +4,6 @@
 # Nicolas Leocadio
 # ---------------------------
 import numpy as np
-# import matplotlib.pyplot as plt
-# from fcmeans import FCM
-import matplotlib.pyplot as plt
 import math
 import random
 
@@ -36,47 +33,16 @@ def generateInitialPop(chromosome):
 
 #-------------------------------------------------------------------------------------------------------
 
-def getFitnessScore(chromosome, cityCoord): #returns total distance of the tour
-    totalDistance = 0
-    startGene = chromosome[0]
-    prevGene = startGene
-    
-    # for gene in chromosome[1:]:
-    #     totalDistance += math.dist(cityCoord[prevGene], cityCoord[gene])
-    #     prevGene = gene
-    
-    # totalDistance += math.dist(cityCoord[prevGene],cityCoord[startGene])
+def getFitnessScore(chromosome, cityCoord, forCenters=False): #returns total distance of the tour
+    totalDist = 0
 
     ndx = np.array(chromosome)
     copy_coords = np.array(cityCoord)
     chromosome_coords = copy_coords[ndx]
     totalDist = np.sum(np.sqrt(np.sum(np.square(np.diff(chromosome_coords, axis=0)), axis=1)))
-    totalDist += np.sum(np.sqrt(np.sum(np.square(np.diff([chromosome_coords[-1],chromosome_coords[0]], axis=0)), axis=1)))
+    if forCenters:
+        totalDist += np.sum(np.sqrt(np.sum(np.square(np.diff([chromosome_coords[-1],chromosome_coords[0]], axis=0)), axis=1)))
 
-    # print("dists: ", totalDistance, totalDist, ", diff: ", totalDistance - totalDist)
-    
-    # return int(totalDistance)
-    return int(totalDist)
-
-#-------------------------------------------------------------------------------------------------------
-
-def getFitnessScoreCenters(chromosome, CenterCoords): #returns total distance of the tour
-    totalDistance = 0
-    startGene = chromosome[0]
-    prevGene = startGene
-    
-    # for gene in chromosome[1:]:
-    #     totalDistance += math.dist(CenterCoords[prevGene], CenterCoords[gene])
-    #     prevGene = gene
-
-    ndx = np.array(chromosome)
-    copy_coords = np.array(CenterCoords)
-    chromosome_coords = copy_coords[ndx]
-    totalDist = np.sum(np.sqrt(np.sum(np.square(np.diff(chromosome_coords, axis=0)), axis=1)))
-
-    # print("dists: ", totalDistance, totalDist, ", diff: ", totalDistance - totalDist)
-    
-    # return int(totalDistance)
     return int(totalDist)
 
 #-------------------------------------------------------------------------------------------------------
@@ -108,8 +74,6 @@ def pMX(parent1, parent2): #Partially-Matched Crossover
         
         cityList1.remove(child1[i])
         cityList2.remove(child2[i])
-        
-        
     
     for i in range(lengthOfChromo):  #For childs array outside of [A,B] copy cities from parent 2 that havent been taken yet
         
@@ -169,7 +133,6 @@ def inverseMutation(chromosome):
         A = num2
     
     B += 1
-    print(A, B)
 
     chromosome[A:B] = chromosome[A:B][::-1]
 
@@ -180,40 +143,23 @@ def sortFn(item):
 
 #-------------------------------------------------------------------------------------------------------
 
-def sortPopulation(pop, cityCoord):
+def sortPopulation(pop, cityCoord, forCenters=False):
     
     sortedPop = []
     # Call the fitness function for each chromosome in the population
     for city in pop:
-        distance = getFitnessScore(city, cityCoord)
+        distance = getFitnessScore(city, cityCoord, forCenters)
         sortedPop.append([distance, city])
 
-    #sorted(l_key, l_key[0])
     sortedPop.sort(key=sortFn)
 
     return sortedPop
 
 #-------------------------------------------------------------------------------------------------------
 
-def sortPopulationCenters(pop, cityCoord):
-    
-    sortedPop = []
-    # Call the fitness function for each chromosome in the population
-    for city in pop:
-        distance = getFitnessScoreCenters(city, cityCoord)
-        sortedPop.append([distance, city])
-
-    #sorted(l_key, l_key[0])
-    sortedPop.sort(key=sortFn)
-
-    return sortedPop
-
-#-------------------------------------------------------------------------------------------------------
-
-def tournamentSelection(population, cityCoord, l_sorted):
+def tournamentSelection(population, cityCoord, l_sorted, forCenters=False):
     # Number of cities in the population/population size
     N = len(population)
-    # print("Size of the population: ", N)
 
     # Indices that map to individual (chromosome in a population)
     pop = population.copy()
@@ -222,18 +168,13 @@ def tournamentSelection(population, cityCoord, l_sorted):
 
     k = 0
     l = 0
-    #j = 0
     while (l < N):
         C1 = random.choice(pop)
         
         m = 1
         while (m < k):
-            # Condition to break out of loop if we are in an invalid index range
-            #if ((j+m) >= N):
-            #    break
-
             C2 = random.choice(pop)
-            if (getFitnessScore(C1, cityCoord) > getFitnessScore(C2, cityCoord)):
+            if (getFitnessScore(C1, cityCoord, forCenters) > getFitnessScore(C2, cityCoord, forCenters)):
                 C1 = C2
             
             m += 1
@@ -244,47 +185,6 @@ def tournamentSelection(population, cityCoord, l_sorted):
         
         l += 2
         k += 1
-        #j += 2
-
-    return tournamentWinners
-
-#-------------------------------------------------------------------------------------------------------
-
-def tournamentSelectionCenters(population, cityCoord, l_sorted):
-    # Number of cities in the population/population size
-    N = len(population)
-    # print("Size of the population: ", N)
-
-    # Indices that map to individual (chromosome in a population)
-    pop = population.copy()
-
-    tournamentWinners = []
-
-    k = 0
-    l = 0
-    #j = 0
-    while (l < N):
-        C1 = random.choice(pop)
-        
-        m = 1
-        while (m < k):
-            # Condition to break out of loop if we are in an invalid index range
-            #if ((j+m) >= N):
-            #    break
-
-            C2 = random.choice(pop)
-            if (getFitnessScoreCenters(C1, cityCoord) > getFitnessScoreCenters(C2, cityCoord)):
-                C1 = C2
-            
-            m += 1
-
-        pop.remove(C1)
-        parentPair = [C1,l_sorted[l][1]]
-        tournamentWinners.append(parentPair)
-        
-        l += 2
-        k += 1
-        #j += 2
 
     return tournamentWinners
 
@@ -294,8 +194,6 @@ def condition1(sortedPop):
     N = len(sortedPop)
     bestDist = sortedPop[0][0]
     numberOfBest = 0
-    
-    #print('Current Optimal path length: ', bestDist)
     
     for dist, gene in sortedPop:
         if dist == bestDist:
@@ -312,17 +210,18 @@ def condition1(sortedPop):
 
 #-------------------------------------------------------------------------------------------------------
 
-def gaForCluster(cityCoordinates, baseChromo):
+def gaForCluster(cityCoordinates, baseChromo=None, pop=None, forCenters=False):
     prob_cross = .8
     prob_mut = .02
     t_max = 100
     t = 0
     
-    pop = generateInitialPop(baseChromo)   #randomly generate population P(0)
-    sortedPop = sortPopulation(pop,cityCoordinates)
+    if not forCenters:
+        pop = generateInitialPop(baseChromo)   #randomly generate population P(0)
+    sortedPop = sortPopulation(pop,cityCoordinates, forCenters)
     
     while condition1(sortedPop) and t < t_max:
-        parents = tournamentSelection(pop, cityCoordinates, sortedPop)
+        parents = tournamentSelection(pop, cityCoordinates, sortedPop, forCenters)
         children = []
         # bestRoute = sortedPop[0][1]
         # x = [cityCoordinates[point][0] for point in bestRoute]
@@ -338,8 +237,12 @@ def gaForCluster(cityCoordinates, baseChromo):
                 child1, child2 = p1.copy() , p2.copy()
             
             if random.random() < prob_mut:
-                swapMutation(child1)
-                swapMutation(child2)
+                if forCenters:
+                    inverseMutation(child1)
+                    inverseMutation(child2)
+                else:
+                    swapMutation(child1)
+                    swapMutation(child2)
                 
             children.append(child1)
             children.append(child2)
@@ -351,11 +254,11 @@ def gaForCluster(cityCoordinates, baseChromo):
             children.append(random.choice(pop))
         
         pop = children
-        sortedPop = sortPopulation(pop, cityCoordinates)
+        sortedPop = sortPopulation(pop, cityCoordinates, forCenters)
         t += 1
-    # print("cluster tour length: ", sortedPop[0][0])
-    return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
 
+    return sortedPop[0][0], sortedPop[0][1] # Returns the shortes tour that the GA found
+   
 #-------------------------------------------------------------------------------------------------------
 
 def needRotate(X,a,b):
@@ -409,47 +312,7 @@ def connectClusters(clusterTour, sub_tours, cityCoordinates):
         
 #-------------------------------------------------------------------------------------------------------
 
-def gaForClusterCenters(clusterCenters, pop):
-    prob_cross = .8
-    prob_mut = .02
-    t_max = 100
-    t = 0
-
-    sortedPop = sortPopulationCenters(pop, clusterCenters)
-    
-    while condition1(sortedPop) and t < t_max:
-        parents = tournamentSelectionCenters(pop, clusterCenters, sortedPop)
-        children = []
-        
-        for p1, p2 in parents:
-            if random.random() < prob_cross:
-                child1, child2 = pMX(p1, p2)
-            else:
-                child1, child2 = p1.copy() , p2.copy()
-            
-            if random.random() < prob_mut:
-                inverseMutation(child1)
-                inverseMutation(child2)
-                
-            children.append(child1)
-            children.append(child2)
-        
-        if len(children) > len(pop): # If we have too many children get rid of the last one
-            children.pop()
-            
-        elif len(children) < len(pop): #If we are missing a child we choose random chromosome to live on
-            children.append(random.choice(pop))
-        
-        pop = children
-        sortedPop = sortPopulationCenters(pop, clusterCenters)
-        t += 1
-    # print("cluster tour length: ", sortedPop[0][0])
-    return sortedPop[0][1] # Returns the shortes tour that the GA found
-   
-#-------------------------------------------------------------------------------------------------------
-
 # return A1,A2 and B1,B2 (connect a1 to a2, b1 to b2)
-# def connectClusters(cluster_tour, centers, sub_tours):
 def findClosestEdge(cluster1, cluster2, city_coords):
     min_dist = math.inf
     A = [0,0]
@@ -478,8 +341,6 @@ def findClosestEdge(cluster1, cluster2, city_coords):
             if dist_forward < dist_backward:
                 if dist_forward < min_dist:
                     min_dist = dist_forward
-                    # A = [i, j]
-                    # B = [k, l]
                     A1 = i
                     A2 = j
                     B1 = k
@@ -487,48 +348,11 @@ def findClosestEdge(cluster1, cluster2, city_coords):
             else:
                 if dist_backward < min_dist:
                     min_dist = dist_backward
-                    # A = [i, l]
-                    # B = [k, j]
                     A1 = i
                     A2 = l
                     B1 = k
                     B2 = j
-                    flip = 1
 
     return A1, A2, B1, B2
 
 #-------------------------------------------------------------------------------------------------------
-
-# def main():
-#     # Using the most basic symmetric TSP file: a280.tsp
-#     # optimal length: 2579
-#     tsp_file = '../testCases/lin105.tsp'
-#     nodes, cityCoordinates = preprocess_data_from_file(tsp_file)
-    
-#     # TODO: Experiment with different number of clusters
-#     num_clusters = 5
-    
-#     labels, centers = createClusters(cityCoordinates, num_clusters)
-#     nodes -= 1 #node name will now correlate to the index in cityCoordinates
-    
-#     chromo0 = createBasechromosome(nodes,labels,0)
-#     #print(chromo0)
-#     #print(getFitnessScore(chromo0,cityCoordinates))
-#     pop0 = generateInitialPop(chromo0)
-#     #print("Shape of the initial population: ", np.array(pop0).shape)
-#     sortedPop = sortPopulation(pop0, cityCoordinates)
-    
-#     bestChromosome = gaForCluster(nodes,labels,cityCoordinates,0)
-
-    
-    # print("Shape of the winners: ", np.array(tournamentWinners).shape)
-    # initializing the list
-    # random_list = ['A', 'A', 'B', 'C', 'B', 'D', 'D', 'A', 'B']
-    # frequency = {}
-    
-    # print(tournamentWinners)
-    # # printing the frequency
-    # print(frequency)
-    
-#main()
-

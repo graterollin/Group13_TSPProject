@@ -107,7 +107,7 @@ def TSP(tsp_file):
     bestDistances = []
     totalDistance = 0
     for i in range(finalNumClusters):
-        bestDistance, bestChromosome = gaForCluster(cityCoordinates, citiesPerCluster[i])
+        bestDistance, bestChromosome = gaForCluster(cityCoordinates, baseChromo=citiesPerCluster[i])
         bestDistances.append(bestDistance)
         totalDistance += bestDistance
         bestChromosomes.append(bestChromosome)
@@ -125,8 +125,8 @@ def TSP(tsp_file):
 
     plt.show()
     centerpop = generateCenterpop(finalCenters)
-    # centersPopMatrix, centersNumberMatrix = centersPopulation(finalCenters, citiesPerCluster, cityCoordinates)
-    clusterRoute = gaForClusterCenters(finalCenters, centerpop)
+    dropMe, clusterRoute = gaForCluster(finalCenters, pop=centerpop, forCenters=True)
+
     finalTour = connectClusters(clusterRoute,bestChromosomes, cityCoordinates)
     x = [cityCoordinates[point][0] for point in finalTour]
     y = [cityCoordinates[point][1] for point in finalTour]
