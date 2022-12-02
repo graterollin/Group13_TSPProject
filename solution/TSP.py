@@ -125,10 +125,8 @@ def TSP(tsp_file):
 
     plt.show()
     centerpop = generateCenterpop(finalCenters)
-    centersPopMatrix, centersNumberMatrix = centersPopulation(finalCenters, citiesPerCluster, cityCoordinates)
-    print(centersNumberMatrix)
+    # centersPopMatrix, centersNumberMatrix = centersPopulation(finalCenters, citiesPerCluster, cityCoordinates)
     clusterRoute = gaForClusterCenters(finalCenters, centerpop)
-    print(clusterRoute)
     finalTour = connectClusters(clusterRoute,bestChromosomes, cityCoordinates)
     x = [cityCoordinates[point][0] for point in finalTour]
     y = [cityCoordinates[point][1] for point in finalTour]
